@@ -1,0 +1,10 @@
+include:
+  - project: tvconss/gitlab-tools
+    ref: main
+    file: sync-to-github/.gitlab-ci.yml
+
+variables:
+  GITHUB_REPO: "openclaw"
+
+stages:
+  - sync-to-github
