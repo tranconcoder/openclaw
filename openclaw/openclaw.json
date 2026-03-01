@@ -60,9 +60,11 @@
   "channels": {
     "telegram": {
       "enabled": true,
-      "dmPolicy": "pairing",
-      "botToken": "${TELEGRAM_BOT_TOKEN}",
+      "dmPolicy": "allowlist",
+      "allowFrom": ["7645177112"],
       "groupPolicy": "allowlist",
+      "groupAllowFrom": ["7645177112"],
+      "botToken": "${TELEGRAM_BOT_TOKEN}",
       "streaming": "off"
     }
   },
