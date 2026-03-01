@@ -23,6 +23,9 @@ deploy:
     - echo "--- Syncing files to server ---"
     - rsync -av --delete . $DEPLOY_FOLDER/
 
+    - echo "--- Create env file from gitlab env ---"
+    - cp $ENV_FILE .env
+
     - echo "-- Restart docker compose ---"
     - docker compose down
     - docker compose up -d --build
