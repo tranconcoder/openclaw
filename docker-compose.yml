@@ -7,5 +7,18 @@ services:
       - "18789:18789"
     volumes:
       - ./openclaw:/home/node/.openclaw
+    command: 
+      - "sh"
+      - "-c"
+      - |
+        mkdir -p /home/node/.local/bin
+        if [ ! -f /home/node/.local/bin/gog ]; then
+          echo "--- Installing gog CLI ---"
+          wget -qO- https://github.com/steipete/gogcli/releases/download/v0.11.0/gogcli_0.11.0_linux_amd64.tar.gz | tar -xzv -C /home/node/.local/bin gog
+          chmod +x /home/node/.local/bin/gog
+        fi
+        openclaw gateway
+    environment:
+      - PATH=/home/node/.local/bin:/root/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
     env_file:
       - .env
