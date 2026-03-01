@@ -23,8 +23,12 @@ deploy:
     - cd $DEPLOY_FOLDER
     - echo "--- Creating .env file from GitLab CI variable ---"
     - cp $ENV_FILE .env
-    - echo "--- Creating Google OAuth secret file ---"
-    - 'if [ -n "$GOOGLE_OAUTH_SECRET" ]; then cp $GOOGLE_OAUTH_SECRET google-oauth-secret.json; chown 1000:1000 google-oauth-secret.json; chmod 600 google-oauth-secret.json; else echo "WARNING: GOOGLE_OAUTH_SECRET not set"; fi'
+    - echo "--- Creating Google OAuth secret file and config dir ---"
+    - mkdir -p openclaw-gog-config
+    - if [ -n "$GOOGLE_OAUTH_SECRET" ]; then cp $GOOGLE_OAUTH_SECRET google-oauth-secret.json; else echo "WARNING: GOOGLE_OAUTH_SECRET not set"; fi
+    - chown -R 1000:1000 google-oauth-secret.json openclaw-gog-config
+    - chmod 600 google-oauth-secret.json
+    - chmod 700 openclaw-gog-config
     - echo "--- Restarting Docker Compose ---"
     - docker compose down
     - docker compose up -d --build
