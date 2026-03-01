@@ -28,5 +28,7 @@ services:
     environment:
       - PATH=/home/node/.local/bin:/root/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
       - GOG_ACCOUNT=${GOG_ACCOUNT}
+      - GOG_KEYRING_BACKEND=file
+      - GOG_KEYRING_PASSWORD=${GOG_KEYRING_PASSWORD:-openclaw}
     env_file:
       - .env
