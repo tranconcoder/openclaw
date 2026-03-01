@@ -2,6 +2,7 @@ services:
   openclaw:
     image: alpine/openclaw:main
     container_name: openclaw_gateway
+    user: "1000:1000"
     restart: unless-stopped
     ports:
       - "18789:18789"
