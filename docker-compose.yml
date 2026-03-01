@@ -26,7 +26,6 @@ services:
         openclaw gateway
     environment:
       - PATH=/home/node/.local/bin:/root/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
-      - GOG_CONFIG_DIR=/home/node/.openclaw/gog-config
       - GOG_ACCOUNT=${GOG_ACCOUNT}
     env_file:
       - .env
