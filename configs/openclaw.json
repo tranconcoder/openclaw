@@ -67,11 +67,14 @@
     }
   },
   "gateway": {
+    "trustedProxies": [
+      "127.0.0.1"
+    ],
     "port": 18789,
     "mode": "local",
     "controlUi": {
       "allowedOrigins": [
-        "https://openclaw.trancondev.site"
+        "${OPENCLAW_CORS_ORIGIN}"
       ],
       "allowInsecureAuth": true
     },
