@@ -26,6 +26,9 @@ deploy:
     - echo "--- Create env file from gitlab env ---"
     - cp $ENV_FILE .env
 
+    - pwd
+    - ls
+
     - echo "-- Restart docker compose ---"
     - docker compose down
     - docker compose up -d --build
