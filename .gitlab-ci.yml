@@ -18,10 +18,13 @@ deploy:
   script:
     - echo "--- Preparing deployment directory ---"
     - mkdir -p $DEPLOY_FOLDER
-    - cd $DEPLOY_FOLDER
 
-    - echo "--- Syncing files to server ---"
-    - rsync -av --delete . $DEPLOY_FOLDER/
+    - echo "--- Syncing files from CI workspace to server ---"
+    - rsync -av --delete --exclude '.git' ./ $DEPLOY_FOLDER/
+
+    - cd $DEPLOY_FOLDER
+    - echo "--- Switched to deployment directory ---"
+    - pwd
 
     - echo "--- Create env file from gitlab env ---"
     - cp $ENV_FILE .env
