@@ -3,8 +3,19 @@ services:
     image: alpine/openclaw:main
     container_name: openclaw_gateway
     restart: unless-stopped
-    network_mode: host
+    ports:
+      - "18789:18789"
+    networks:
+      openclaw-net:
+        ipv4_address: 172.30.0.10
     volumes:
-      - ./configs/openclaw.json:/home/node/.openclaw/openclaw.json
+      - ./openclaw:/home/node/.openclaw
     env_file:
       - .env
+
+networks:
+  openclaw-net:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.30.0.0/16
