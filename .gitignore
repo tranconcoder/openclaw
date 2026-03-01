@@ -1,2 +1,5 @@
 .env*
-!.env.example/openclaw/agents/
+!.env.example
+openclaw/agents/
+openclaw/credentials/
+openclaw/identity/
