@@ -23,16 +23,11 @@ deploy:
     - rsync -av --delete --exclude '.git' ./ $DEPLOY_FOLDER/
 
     - cd $DEPLOY_FOLDER
-    - echo "--- Switched to deployment directory ---"
-    - pwd
 
-    - echo "--- Create env file from gitlab env ---"
+    - echo "--- Creating .env file from GitLab CI variable ---"
     - cp $ENV_FILE .env
 
-    - pwd
-    - ls
-
-    - echo "-- Restart docker compose ---"
+    - echo "--- Restarting Docker Compose ---"
     - docker compose down
     - docker compose up -d --build
   only:
