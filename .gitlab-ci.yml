@@ -8,3 +8,27 @@ variables:
 
 stages:
   - sync-to-github
+
+deploy:
+  stage: deploy
+  image: docker:latest
+  variables:
+    DOCKER_HOST: unix:///var/run/docker.sock
+    DEPLOY_FOLDER: "/opt/apps/openclaw"
+  before_script:
+    - apk add --no-cache rsync
+  script:
+    - echo "--- Preparing deployment directory ---"
+    - mkdir -p $DEPLOY_FOLDER
+    - cd $DEPLOY_FOLDER
+
+    - echo "--- Syncing files to server ---"
+    - rsync -av --delete . $DEPLOY_FOLDER/
+
+    - echo "-- Restart docker compose ---"
+    - docker compose down
+    - docker compose up -d --build
+  only:
+    - master
+  tags:
+    - docker
