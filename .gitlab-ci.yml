@@ -6,8 +6,6 @@ include:
 variables:
   GITHUB_REPO: "openclaw"
 
-stages:
-  - sync-to-github
 
 deploy:
   stage: deploy
@@ -32,3 +30,7 @@ deploy:
     - master
   tags:
     - docker
+
+stages:
+  - sync-to-github
+  - deploy
