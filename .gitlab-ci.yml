@@ -15,19 +15,36 @@ deploy:
     DEPLOY_FOLDER: "/opt/apps/openclaw"
   before_script:
     - apk add --no-cache rsync
+    - |
+      retry_command() {
+        local max_attempts=$1
+        local delay=$2
+        shift 2
+        local attempt=1
+        until "$@"; do
+          if [ $attempt -ge $max_attempts ]; then
+            echo "--- Command failed after $attempt attempts ---"
+            return 1
+          fi
+          echo "--- Attempt $attempt failed. Retrying in ${delay}s... ---"
+          sleep $delay
+          attempt=$((attempt + 1))
+          delay=$((delay * 2))
+        done
+      }
   script:
     - echo "--- Preparing deployment directory ---"
     - mkdir -p $DEPLOY_FOLDER
     - echo "--- Syncing files from CI workspace to server ---"
-    - rsync -av --delete --exclude '.git' --exclude 'openclaw/agents/' --exclude 'openclaw/canvas/' --exclude 'openclaw/credentials/' --exclude 'openclaw/cron/' ./ $DEPLOY_FOLDER/
+    - retry_command 3 2 rsync -av --delete --exclude '.git' --exclude 'openclaw/agents/' --exclude 'openclaw/canvas/' --exclude 'openclaw/credentials/' --exclude 'openclaw/cron/' ./ $DEPLOY_FOLDER/
     - cd $DEPLOY_FOLDER
     - echo "--- Creating .env file from GitLab CI variable ---"
     - cp $ENV_FILE .env
     - echo "--- Creating Google OAuth secret file ---"
     - 'if [ -n "$GOOGLE_OAUTH_SECRET" ]; then cp $GOOGLE_OAUTH_SECRET google-oauth-secret.json; chmod 600 google-oauth-secret.json; chown root:root google-oauth-secret.json; else echo "WARNING: GOOGLE_OAUTH_SECRET not set"; fi'
     - echo "--- Restarting Docker Compose ---"
-    - docker compose down
-    - docker compose up -d --build
+    - retry_command 3 5 docker compose down
+    - retry_command 3 5 docker compose up -d --build
   only:
     - master
   tags:
