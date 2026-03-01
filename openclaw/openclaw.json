@@ -71,6 +71,7 @@
       "127.0.0.1",
       "172.30.0.1"
     ],
+    "bind": "lan",
     "port": 18789,
     "mode": "local",
     "controlUi": {
