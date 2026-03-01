@@ -7,6 +7,7 @@ services:
       - "18789:18789"
     volumes:
       - ./openclaw:/home/node/.openclaw
+      - ./openclaw-gog-config:/home/node/.config/gogcli
       - ./google-oauth-secret.json:/home/node/.openclaw/google-oauth-secret.json
     command: 
       - "sh"
