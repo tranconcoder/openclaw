@@ -1,0 +1,24 @@
+{
+  "0326f3fb-5950-41ed-b582-a76e8bce5718": {
+    "requestId": "0326f3fb-5950-41ed-b582-a76e8bce5718",
+    "deviceId": "77b1e9e3a2e45e07f792e091befa6eb56a88fab31b1436cc7b35b9b1a019bf46",
+    "publicKey": "r6wFGMwkZMQ82zKUeXDqBAQxDvjbw9Cy-P1lPkgfkXk",
+    "platform": "linux",
+    "clientId": "cli",
+    "clientMode": "cli",
+    "role": "operator",
+    "roles": [
+      "operator"
+    ],
+    "scopes": [
+      "operator.admin",
+      "operator.read",
+      "operator.write",
+      "operator.approvals",
+      "operator.pairing"
+    ],
+    "silent": false,
+    "isRepair": false,
+    "ts": 1772382827184
+  }
+}
