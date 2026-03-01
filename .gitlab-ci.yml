@@ -20,7 +20,7 @@ deploy:
     - mkdir -p $DEPLOY_FOLDER
 
     - echo "--- Syncing files from CI workspace to server ---"
-    - rsync -av --delete --exclude '.git' ./ $DEPLOY_FOLDER/
+    - rsync -av --delete --exclude '.git' --exclude 'openclaw/agents/' --exclude 'openclaw/canvas/' --exclude 'openclaw/credentials/' --exclude 'openclaw/cron/' ./ $DEPLOY_FOLDER/
 
     - cd $DEPLOY_FOLDER
 

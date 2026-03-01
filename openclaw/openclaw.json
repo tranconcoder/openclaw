@@ -61,9 +61,9 @@
     "telegram": {
       "enabled": true,
       "dmPolicy": "allowlist",
-      "allowFrom": ["7645177112"],
+      "allowFrom": ["${TELEGRAM_OWNER_ID}"],
       "groupPolicy": "allowlist",
-      "groupAllowFrom": ["7645177112"],
+      "groupAllowFrom": ["${TELEGRAM_OWNER_ID}"],
       "botToken": "${TELEGRAM_BOT_TOKEN}",
       "streaming": "off"
     }
