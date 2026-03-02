@@ -25,9 +25,10 @@ async function main() {
         for (const [sourceName, jobs] of Object.entries(sources)) {
             if (jobs && jobs.length > 0) {
                 hasJobs = true;
-                console.log(`## 🔥 IT Jobs Mới Trên ${sourceName.toUpperCase()} (Backend, Intern/Fresher, HCM/Remote, Hôm nay)\n`);
+                console.log(`## 🔥 IT Jobs Trên ${sourceName.toUpperCase()} (Backend, Intern/Fresher, HCM/Remote, Hôm nay)\n`);
                 jobs.forEach((job, index) => {
-                    console.log(`*   **${index + 1}. [${job.title}](${job.link})**`);
+                    const badge = job.isNew ? ' 🆕' : '';
+                    console.log(`*   **${index + 1}. [${job.title}](${job.link})${badge}**`);
                     console.log(`    * 🏢 **Công ty:** ${job.company}`);
                     console.log(`    * 📍 **Địa điểm:** ${job.location} | ⏳ **Cập nhật:** ${job.time}`);
                 });

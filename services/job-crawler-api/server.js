@@ -115,38 +115,44 @@ app.get('/api/jobs', async (req, res) => {
             vieclam24h: vieclam24hJobs
         };
 
-        const newJobsResults = {};
-        let totalNewCount = 0;
+        const combinedResults = {};
         let totalScrapedCount = 0;
+        let totalNewCount = 0;
 
-        console.log('[Crawler API] Processing jobs and filtering new ones...');
+        console.log('[Crawler API] Processing and tagging jobs...');
 
         for (const [source, jobs] of Object.entries(jobGroups)) {
-            newJobsResults[source] = [];
-            totalScrapedCount += jobs.length;
+            // Limit to top 10 as requested
+            const topJobs = jobs.slice(0, 10);
+            combinedResults[source] = [];
+            totalScrapedCount += topJobs.length;
 
-            for (const job of jobs) {
+            for (const job of topJobs) {
                 try {
-                    // upsert and return the document BEFORE the update
+                    // Update if exists, insert if not. Return original doc.
                     const existingJob = await Job.findOneAndUpdate(
                         { link: job.link },
                         { $set: { ...job, scrapedAt: new Date() } },
                         { upsert: true, new: false }
                     );
 
-                    // If existingJob is null, it means it was inserted (it's new)
-                    if (!existingJob) {
-                        newJobsResults[source].push(job);
-                        totalNewCount++;
-                    }
+                    const isNew = !existingJob;
+                    if (isNew) totalNewCount++;
+                    
+                    combinedResults[source].push({
+                        ...job,
+                        isNew: isNew
+                    });
                 } catch (err) {
                     console.error(`[Crawler API] Error processing job ${job.link}:`, err.message);
+                    // Add to results anyway to ensure client gets data
+                    combinedResults[source].push({ ...job, isNew: false });
                 }
             }
         }
 
         const results = {
-            data: newJobsResults,
+            data: combinedResults,
             metadata: {
                 totalNew: totalNewCount,
                 totalScraped: totalScrapedCount,
