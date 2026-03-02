@@ -11,6 +11,7 @@ services:
       - ./openclaw-gog-config:/home/node/.config/gogcli
       - ./google-oauth-secret.json:/home/node/.openclaw/google-oauth-secret.json
       - ./skills/it-news:/app/skills/it-news:ro
+      - ./skills/it-jobs:/app/skills/it-jobs:ro
     command: 
       - "sh"
       - "-c"
@@ -49,16 +50,33 @@ services:
     networks:
       - openclaw-net
 
+  mongodb:
+    image: mongo:latest
+    container_name: openclaw_mongodb
+    restart: unless-stopped
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - openclaw-net
+
   job-crawler-api:
     build: ./services/job-crawler-api
     container_name: openclaw_job_crawler_api
+    user: "1000:1000"
     restart: unless-stopped
+    volumes:
+      - ./services/job-crawler-api/data:/app/data
     environment:
       - BROWSER_WS_URL=ws://browserless:3000
+      - MONGODB_URI=mongodb://mongodb:27017/openclaw
     depends_on:
       - browserless
+      - mongodb
     networks:
       - openclaw-net
+
+volumes:
+  mongodb_data:
 
 networks:
   openclaw-net:
