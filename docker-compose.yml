@@ -24,9 +24,9 @@ services:
           echo "--- Configuring gog credentials ---"
           gog auth credentials /home/node/.openclaw/google-oauth-secret.json
         fi
-        if [ ! -d skills/vn-market-news-monitor ]; then
-          echo "--- Installing vn-market-news-monitor ---"
-          env HOME=/tmp npx --yes clawhub install vn-market-news-monitor || true
+        if [ ! -d skills/blogwatcher ]; then
+          echo "--- Installing blogwatcher ---"
+          env HOME=/tmp npx --yes clawhub install blogwatcher || true
         fi
         openclaw gateway
     environment:
