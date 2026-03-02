@@ -37,3 +37,18 @@ services:
       - GOG_KEYRING_PASSWORD=${GOG_KEYRING_PASSWORD:-openclaw}
     env_file:
       - .env
+
+  openclaw-cron:
+    image: alpine/openclaw:main
+    container_name: openclaw_cron
+    user: "root"
+    restart: unless-stopped
+    depends_on:
+      - openclaw
+    volumes:
+      - ./openclaw:/home/node/.openclaw
+    environment:
+      - OPENCLAW_GATEWAY_TOKEN=${OPENCLAW_GATEWAY_TOKEN}
+      - TELEGRAM_OWNER_ID=${TELEGRAM_OWNER_ID}
+    command: >
+      sh -c "echo '0 7,20 * * * /usr/local/bin/openclaw agent --url ws://openclaw:18789 --message \"lấy tin tức IT hôm nay và tóm tắt chi tiết cho tôi\" --announce --to ${TELEGRAM_OWNER_ID}' | crontab - && crond -f -l 8"
