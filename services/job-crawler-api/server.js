@@ -99,52 +99,65 @@ app.get('/api/jobs', async (req, res) => {
             vieclam24hCrawler.scrape(browser, rawDir)
         ]);
 
+        // Process and filter jobs (check against MongoDB)
+        const jobGroups = {
+            linkedin: linkedinJobs,
+            topcv: topcvJobs,
+            topdev: topdevJobs,
+            itviec: itviecJobs,
+            vietnamworks: vietnamWorksJobs,
+            careerviet: careerVietJobs,
+            glints: glintsJobs,
+            facebook: facebookJobs,
+            vieclam24h: vieclam24hJobs
+        };
+
+        const newJobsResults = {};
+        let totalNewCount = 0;
+        let totalScrapedCount = 0;
+
+        console.log('[Crawler API] Processing jobs and filtering new ones...');
+
+        for (const [source, jobs] of Object.entries(jobGroups)) {
+            newJobsResults[source] = [];
+            totalScrapedCount += jobs.length;
+
+            for (const job of jobs) {
+                try {
+                    // upsert and return the document BEFORE the update
+                    const existingJob = await Job.findOneAndUpdate(
+                        { link: job.link },
+                        { $set: { ...job, scrapedAt: new Date() } },
+                        { upsert: true, new: false }
+                    );
+
+                    // If existingJob is null, it means it was inserted (it's new)
+                    if (!existingJob) {
+                        newJobsResults[source].push(job);
+                        totalNewCount++;
+                    }
+                } catch (err) {
+                    console.error(`[Crawler API] Error processing job ${job.link}:`, err.message);
+                }
+            }
+        }
+
         const results = {
-            data: {
-                linkedin: linkedinJobs,
-                topcv: topcvJobs,
-                topdev: topdevJobs,
-                itviec: itviecJobs,
-                vietnamworks: vietnamWorksJobs,
-                careerviet: careerVietJobs,
-                glints: glintsJobs,
-                facebook: facebookJobs,
-                vieclam24h: vieclam24hJobs
-            },
+            data: newJobsResults,
             metadata: {
-                totalScraped: linkedinJobs.length + topcvJobs.length + topdevJobs.length + itviecJobs.length + vietnamWorksJobs.length + careerVietJobs.length + glintsJobs.length + facebookJobs.length + vieclam24hJobs.length,
+                totalNew: totalNewCount,
+                totalScraped: totalScrapedCount,
                 timestamp: new Date().toISOString()
             }
         };
 
-        // Save raw response to data directory for debugging/evaluation as requested
+        // Save raw response to data directory for debugging
         try {
             const dataDir = path.join(__dirname, 'data');
             if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
             fs.writeFileSync(path.join(dataDir, 'raw_response.json'), JSON.stringify(results, null, 2));
-            console.log(`[Crawler API] Raw response saved to ${path.join(dataDir, 'raw_response.json')}`);
         } catch (err) {
             console.error('[Crawler API] Failed to save raw response:', err.message);
-        }
-
-        // Save to MongoDB (Upsert)
-        const allJobs = [
-            ...linkedinJobs, ...topcvJobs, ...topdevJobs, ...itviecJobs, 
-            ...vietnamWorksJobs, ...careerVietJobs, ...glintsJobs, 
-            ...facebookJobs, ...vieclam24hJobs
-        ];
-
-        console.log(`[Crawler API] Saving ${allJobs.length} jobs to MongoDB...`);
-        for (const job of allJobs) {
-            try {
-                await Job.findOneAndUpdate(
-                    { link: job.link },
-                    { $set: job },
-                    { upsert: true, new: true }
-                );
-            } catch (err) {
-                console.error(`[Crawler API] Error saving job ${job.link}:`, err.message);
-            }
         }
 
         res.json(results);
