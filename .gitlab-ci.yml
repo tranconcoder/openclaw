@@ -6,7 +6,6 @@ include:
 variables:
   GITHUB_REPO: "openclaw"
 
-
 deploy:
   stage: deploy
   image: docker:latest
@@ -27,6 +26,7 @@ deploy:
       --exclude 'openclaw/credentials/'
       --exclude 'openclaw/cron/'
       --exclude 'openclaw/devices/paired.json'
+      --exclude 'openclaw-gog-config/'
       ./ $DEPLOY_FOLDER/
     - cd $DEPLOY_FOLDER
     - echo "--- Creating .env file from GitLab CI variable ---"
