@@ -1,7 +1,6 @@
 services:
   openclaw:
-    image: ${IMAGE_NAME:-openclaw-image}
-    build: .
+    image: alpine/openclaw:main
     container_name: openclaw_gateway
     user: "1000:1000"
     restart: unless-stopped
@@ -12,7 +11,6 @@ services:
       - ./openclaw-gog-config:/home/node/.config/gogcli
       - ./google-oauth-secret.json:/home/node/.openclaw/google-oauth-secret.json
       - ./skills/it-news:/app/skills/it-news:ro
-      - ./skills/openai-whisper/SKILL.md:/app/skills/openai-whisper/SKILL.md:ro
     command: 
       - "sh"
       - "-c"

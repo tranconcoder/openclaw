@@ -1,8 +1,3 @@
-stages:
-  - sync-to-github
-  - build
-  - deploy
-
 include:
   - project: tvconss/gitlab-tools
     ref: main
@@ -10,22 +5,7 @@ include:
 
 variables:
   GITHUB_REPO: "openclaw"
-  IMAGE_NAME: $CI_REGISTRY_IMAGE:latest
 
-build:
-  stage: build
-  image: docker:latest
-  services:
-    - docker:dind
-  variables:
-    DOCKER_TLS_CERTDIR: "/certs"
-  before_script:
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
-  script:
-    - docker build -t $IMAGE_NAME .
-    - docker push $IMAGE_NAME
-  only:
-    - master
 
 deploy:
   stage: deploy
@@ -49,12 +29,14 @@ deploy:
     - chown -R 1000:1000 google-oauth-secret.json openclaw-gog-config
     - chmod 600 google-oauth-secret.json
     - chmod 700 openclaw-gog-config
-    - echo "--- Logging into GitLab Registry on VPS ---"
-    - docker login -u $CI_REGISTRY_USER -p $CI_REGISTRY_PASSWORD $CI_REGISTRY
     - echo "--- Restarting Docker Compose ---"
-    - docker compose pull
-    - docker compose up -d
+    - docker compose down
+    - docker compose up -d --build
   only:
     - master
   tags:
     - docker
+
+stages:
+  - sync-to-github
+  - deploy
