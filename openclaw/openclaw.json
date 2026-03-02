@@ -53,6 +53,23 @@
             "maxTokens": 8192
           },
           {
+            "id": "openai/gpt-oss-120b:free",
+            "name": "GPT-OSS 120B (OpenRouter Free)",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
             "id": "qwen/qwen3-coder:free",
             "name": "Qwen Qwq 3-Coder (OpenRouter Free)",
             "api": "openai-completions",
@@ -100,8 +117,8 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "groq-gptoss120b",
-        "fallbacks": ["kimi"]
+        "primary": "kimi",
+        "fallbacks": ["openrouter-gptoss120b"]
       },
       "models": {
         "nvidia-nim/moonshotai/kimi-k2.5": {
@@ -109,6 +126,9 @@
         },
         "openrouter/openai/gpt-oss-20b:free": {
           "alias": "gptoss20b"
+        },
+        "openrouter/openai/gpt-oss-120b:free": {
+          "alias": "openrouter-gptoss120b"
         },
         "openrouter/qwen/qwen3-coder:free": {
           "alias": "qwen-coder"
