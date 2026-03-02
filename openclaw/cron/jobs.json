@@ -4,16 +4,23 @@
     {
       "id": "daily-it-news",
       "name": "Daily IT News Summary",
-      "cron": "0 7,20 * * *",
       "description": "Gửi bản tin IT & Web Dev hàng ngày vào 7h sáng và 8h tối",
-      "agentId": "main",
+      "enabled": true,
+      "schedule": {
+        "kind": "cron",
+        "cron": "0 7,20 * * *",
+        "stagger": "1m"
+      },
       "sessionTarget": "isolated",
-      "message": "lấy tin tức IT hôm nay và tóm tắt chi tiết cho tôi",
-      "channel": "telegram",
-      "to": "${TELEGRAM_OWNER_ID}",
-      "announce": true,
-      "disabled": false,
-      "stagger": "1m"
+      "payload": {
+        "kind": "agentTurn",
+        "message": "lấy tin tức IT hôm nay và tóm tắt chi tiết cho tôi"
+      },
+      "delivery": {
+        "channel": "telegram",
+        "to": "7645177112",
+        "announce": true
+      }
     }
   ]
 }
