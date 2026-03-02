@@ -36,8 +36,8 @@
         "api": "openai-completions",
         "models": [
           {
-            "id": "openai/gpt-oss-120b:free",
-            "name": "GPT-OSS 120B (OpenRouter Free)",
+            "id": "openai/gpt-oss-20b:free",
+            "name": "GPT-OSS 20B (OpenRouter Free)",
             "api": "openai-completions",
             "reasoning": false,
             "input": [
@@ -76,14 +76,15 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "gptoss120b"
+        "primary": "gptoss20b",
+        "fallbacks": ["qwen-coder", "kimi"]
       },
       "models": {
         "nvidia-nim/moonshotai/kimi-k2.5": {
           "alias": "kimi"
         },
-        "openrouter/openai/gpt-oss-120b:free": {
-          "alias": "gptoss120b"
+        "openrouter/openai/gpt-oss-20b:free": {
+          "alias": "gptoss20b"
         },
         "openrouter/qwen/qwen3-coder:free": {
           "alias": "qwen-coder"
