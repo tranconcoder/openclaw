@@ -4,7 +4,7 @@ services:
     container_name: openclaw_browserless_dev
     restart: unless-stopped
     environment:
-      - MAX_CONCURRENT_SESSIONS=10
+      - MAX_CONCURRENT_SESSIONS=3
     networks:
       - openclaw-dev-net
 
