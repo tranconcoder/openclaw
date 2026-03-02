@@ -29,6 +29,47 @@
             "maxTokens": 8192
           }
         ]
+      },
+      "openrouter": {
+        "baseUrl": "https://openrouter.ai/api/v1",
+        "apiKey": "${OPENROUTER_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "liquid/lfm-40b",
+            "name": "Liquid LFM 40B (OpenRouter Free)",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          },
+          {
+            "id": "qwen/qwen3-coder:free",
+            "name": "Qwen Qwq 3-Coder (OpenRouter Free)",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          }
+        ]
       }
     }
   },
@@ -40,6 +81,12 @@
       "models": {
         "nvidia-nim/moonshotai/kimi-k2.5": {
           "alias": "kimi"
+        },
+        "openrouter/liquid/lfm-40b": {
+          "alias": "gptoss120b"
+        },
+        "openrouter/qwen/qwen3-coder:free": {
+          "alias": "qwen-coder"
         }
       },
       "compaction": {
