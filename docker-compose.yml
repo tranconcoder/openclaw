@@ -10,8 +10,6 @@ services:
       - ./openclaw:/home/node/.openclaw
       - ./openclaw-gog-config:/home/node/.config/gogcli
       - ./google-oauth-secret.json:/home/node/.openclaw/google-oauth-secret.json
-      - ./skills/it-news:/app/skills/it-news:ro
-      - ./skills/it-jobs:/app/skills/it-jobs:ro
     command: 
       - "sh"
       - "-c"
