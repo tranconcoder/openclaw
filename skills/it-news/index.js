@@ -21,23 +21,28 @@ async function fetchDevToNews() {
       })
     );
 
-    let md = '### 👨‍💻 Dev.to Top Articles (Programming)\n\n';
+    let md = '';
     articlesData.forEach((article, idx) => {
-      md += `#### ${idx + 1}. [${article.title}](${article.url})\n`;
+      md += `### 👨‍💻 [${idx + 1}] ${article.title}\n\n`;
       let tags = article.tags || article.tag_list || [];
-      if (Array.isArray(tags)) tags = tags.join(', ');
-      md += `*Tags: ${tags} | ❤️ ${article.public_reactions_count} | By: ${article.user?.name || 'Unknown'}*\n\n`;
+      if (Array.isArray(tags)) tags = tags.map(t => `#${t}`).join(' ');
+      
+      md += `> 🔗 **[Xem bài viết gốc](${article.url})**\n`;
+      md += `> 🏷️ **Tags:** ${tags} | ❤️ **Reactions:** ${article.public_reactions_count}\n`;
+      md += `> 👤 **Tác giả:** ${article.user?.name || 'Unknown'}\n\n`;
       
       if (article.body_markdown) {
-         md += `<article_content>\n${article.body_markdown}\n</article_content>\n\n`;
+         // Lấy khoảng 1000 ký tự đầu và thêm dấu ... nếu quá dài
+         const summary = article.body_markdown.substring(0, 1000).trim();
+         md += `${summary}${article.body_markdown.length > 1000 ? '...' : ''}\n\n`;
       } else if (article.description) {
-         md += `*Summary: ${article.description}*\n\n`;
+         md += `*Tóm tắt: ${article.description}*\n\n`;
       }
-      md += `---\n\n`;
+      md += `***\n\n`; // Phân đoạn rõ ràng
     });
     return md;
   } catch (err) {
-    return `*(Error fetching Dev.to news: ${err.message})*\n\n`;
+    return `*(⚠️ Lỗi lấy tin Dev.to: ${err.message})*\n\n`;
   }
 }
 
@@ -47,7 +52,7 @@ async function fetchHackerNews() {
     if (!res.ok) throw new Error(`HN API error: ${res.status}`);
     const topIds = await res.json();
     
-    let md = '### 👾 Hacker News Top Stories\n\n';
+    let md = '## 👾 Hacker News Top Stories\n\n';
     
     const storiesPromises = topIds.slice(0, 5).map(async (id) => {
       const itemRes = await fetch(itemUrl(id));
@@ -60,11 +65,11 @@ async function fetchHackerNews() {
       const title = story?.title || 'Unknown Title';
       const url = story?.url || `https://news.ycombinator.com/item?id=${story?.id}`;
       const score = story?.score || 0;
-      md += `${idx + 1}. **[${title}](${url})** *(⬆️ ${score})*\n`;
+      md += `*   **[${title}](${url})** (⬆️ ${score})\n`;
     });
-    return md + '\n';
+    return md + '\n***\n';
   } catch (err) {
-    return '*(Error fetching Hacker News)*\n\n';
+    return `*(⚠️ Lỗi lấy tin Hacker News)*\n\n`;
   }
 }
 
