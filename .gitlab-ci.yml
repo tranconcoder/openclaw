@@ -39,6 +39,9 @@ deploy:
     - chmod 600 google-oauth-secret.json
     - chmod 700 openclaw-gog-config
 
+    - echo "--- Cleaning up stale session locks ---"
+    - find openclaw/agents/ -name "*.jsonl.lock" -type f -delete || true
+
     - echo "--- Restarting Docker Compose ---"
     - docker compose down
     - docker compose up -d --build
