@@ -18,23 +18,30 @@ deploy:
   script:
     - echo "--- Preparing deployment directory ---"
     - mkdir -p $DEPLOY_FOLDER
+
     - echo "--- Syncing files from CI workspace to server ---"
-    - rsync -av --delete --exclude '.git' --exclude 'openclaw/agents/' --exclude 'openclaw/canvas/' --exclude 'openclaw/credentials/' --exclude 'openclaw/cron/' --exclude 'openclaw/devices/paired.json' ./ $DEPLOY_FOLDER/
+    - rsync -av --delete
+      --exclude '.git'
+      --exclude 'openclaw/agents/'
+      --exclude 'openclaw/canvas/'
+      --exclude 'openclaw/credentials/'
+      --exclude 'openclaw/cron/'
+      --exclude 'openclaw/devices/paired.json'
+      ./ $DEPLOY_FOLDER/
     - cd $DEPLOY_FOLDER
     - echo "--- Creating .env file from GitLab CI variable ---"
     - cp $ENV_FILE .env
+
     - echo "--- Creating Google OAuth secret file and config dir ---"
     - mkdir -p openclaw-gog-config
     - 'if [ -n "$GOOGLE_OAUTH_SECRET" ]; then cp $GOOGLE_OAUTH_SECRET google-oauth-secret.json; else echo "WARNING: GOOGLE_OAUTH_SECRET not set"; fi'
     - chown -R 1000:1000 google-oauth-secret.json openclaw-gog-config
     - chmod 600 google-oauth-secret.json
     - chmod 700 openclaw-gog-config
+
     - echo "--- Restarting Docker Compose ---"
     - docker compose down
     - docker compose up -d --build
-    - echo "--- Recreating Daily IT News Cron Job ---"
-    - sleep 15
-    - docker compose exec -T openclaw openclaw cron add --name "Daily IT News" --cron "0 7,20 * * *" --session isolated --message "lấy tin tức IT hôm nay và tóm tắt chi tiết cho tôi" --to "7645177112" --channel telegram --announce || true
   only:
     - master
   tags:
