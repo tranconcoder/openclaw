@@ -40,4 +40,5 @@ When the `node /app/skills/it-news/index.js` command is executed, it returns a s
 3. **Format Headers**: Use `### 👨‍💻 [N] Title` format for each Dev.to article.
 4. **Preserve Metadata**: Always show the `> 🔗 [Link]`, `> 🏷️ Tags`, and `> 👤 Author` block exactly as formatted.
 5. **Conciseness**: If the user asks for a specific summary, you can further condense, but by default, present the sectioned content clearly.
-6. **Language**: Always respond in the language used by the user (Vietnamese in this context).
+6. **Translation**: Since the raw output from the tool is in English, you **MUST translate the title, summary, and article content into Vietnamese** to make it accessible to the user, while keeping technical terms if necessary.
+7. **Language**: Always respond in the language used by the user (Vietnamese in this context).
