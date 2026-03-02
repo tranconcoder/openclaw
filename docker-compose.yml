@@ -63,7 +63,6 @@ services:
   job-crawler-api:
     build: ./services/job-crawler-api
     container_name: openclaw_job_crawler_api
-    user: "1000:1000"
     restart: unless-stopped
     volumes:
       - ./services/job-crawler-api/data:/app/data
