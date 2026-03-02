@@ -91,6 +91,9 @@
       "gog": {
         "enabled": true
       },
+      "vn-market-news-monitor": {
+        "enabled": true
+      },
       "github": {
         "enabled": false
       }
