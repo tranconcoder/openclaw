@@ -1,0 +1,27 @@
+services:
+  browserless:
+    image: browserless/chrome:latest
+    container_name: openclaw_browserless_dev
+    restart: unless-stopped
+    environment:
+      - MAX_CONCURRENT_SESSIONS=10
+    networks:
+      - openclaw-dev-net
+
+  job-test:
+    image: node:20-slim
+    container_name: openclaw_job_test
+    volumes:
+      - ./skills/it-jobs:/app
+    working_dir: /app
+    environment:
+      - BROWSER_WS_URL=ws://browserless:3000
+    depends_on:
+      - browserless
+    command: node index.js
+    networks:
+      - openclaw-dev-net
+
+networks:
+  openclaw-dev-net:
+    driver: bridge

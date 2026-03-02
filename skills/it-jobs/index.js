@@ -25,33 +25,38 @@ async function scrapeJobs(browser, url, selector) {
         // Wait for page to load and some content to appear
         await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
         
-        const items = await page.$$eval(selector, (els) => {
-            return els.slice(0, 10).map(el => {
-                const titleNode = el.querySelector('h3 a, .title a, h2 a, .job-title a, .base-search-card__title, .title-job a');
-                const companyNode = el.querySelector('.company, .company-name, .base-search-card__subtitle, .brand-name');
+        // Wait 5 seconds for CSR
+        await new Promise(r => setTimeout(r, 5000));
+        
+        const filtered = await page.$$eval(selector, (els) => {
+            return els.slice(0, 15).map(el => {
+                const linkNode = el.querySelector('a[href*="/jobs/view/"], a[href*="/jobs/"], .base-card__full-link, .title-job a, .job-item-2, a');
+                const titleNode = el.querySelector('h3, h2, .title, .job-title, .base-search-card__title');
+                const companyNode = el.querySelector('.company, .company-name, .base-search-card__subtitle, .brand-name, .sub-line-item');
                 const locationNode = el.querySelector('.location, .address, .job-search-card__location, .city');
                 const timeNode = el.querySelector('.time, .distance-time-job-posted, time, .posted-date');
                 
                 return {
-                    title: titleNode?.innerText.trim() || "",
-                    link: titleNode?.href || "",
+                    title: titleNode?.innerText.trim() || el.innerText.split('\n')[0].trim(),
+                    link: linkNode?.href || "",
                     company: companyNode?.innerText.trim() || "Unknown",
                     location: locationNode?.innerText.trim() || "Hồ Chí Minh",
                     time: timeNode?.innerText.trim() || "Gần đây"
                 };
+            }).filter(item => {
+                const loc = item.location.toLowerCase();
+                const isHCMorRemote = loc.includes('ho chi minh') || loc.includes('hồ chí minh') || loc.includes('hcm') || loc.includes('remote') || loc.includes('từ xa') || loc.includes('vietnam') || loc.includes('toàn quốc');
+                
+                const time = item.time.toLowerCase();
+                const isToday = time.includes('giờ trước') || time.includes('phút trước') || time.includes('hôm nay') || 
+                               time.includes('hours ago') || time.includes('minutes ago') || time.includes('just now') ||
+                               time.includes('gần đây') || time.includes('mới');
+                
+                return item.title && isHCMorRemote && isToday;
             });
         });
 
-        // Filter results in the main Node.js context (not browser context)
-        return items.filter(item => {
-            const loc = item.location.toLowerCase();
-            const isHCMorRemote = loc.includes('ho chi minh') || loc.includes('hồ chí minh') || loc.includes('hcm') || loc.includes('remote') || loc.includes('từ xa') || loc.includes('vietnam');
-            
-            const time = item.time.toLowerCase();
-            const isToday = time.includes('giờ trước') || time.includes('phút trước') || time.includes('hôm nay') || time.includes('hours ago') || time.includes('minutes ago') || time.includes('just now');
-            
-            return item.title && isHCMorRemote && isToday;
-        });
+        return filtered;
     } catch (err) {
         console.error(`Error scraping ${url}:`, err.message);
         return [];
@@ -65,9 +70,22 @@ async function main() {
     console.log("*Note: Sử dụng Puppeteer để lấy dữ liệu mới nhất (đảm bảo độ chính xác hơn).*\n\n***\n");
 
     let browser;
+    let retries = 5;
+    while (retries > 0 && !browser) {
+        try {
+            browser = await puppeteer.connect({ browserWSEndpoint: BROWSER_WS_URL });
+        } catch (e) {
+            console.log(`Connecting to browser failed, retrying... (${retries} left)`);
+            retries--;
+            await new Promise(r => setTimeout(r, 2000));
+        }
+    }
+
+    if (!browser) {
+        throw new Error("Could not connect to browserless service.");
+    }
+
     try {
-        browser = await puppeteer.connect({ browserWSEndpoint: BROWSER_WS_URL });
-        
         // --- LinkedIn ---
         const lnUrl = 'https://www.linkedin.com/jobs/search/?keywords=backend%20OR%20nodejs%20OR%20php%20OR%20java%20%28intern%20OR%20fresher%29&location=Vietnam&f_TPR=r86400';
         const lnJobs = await scrapeJobs(browser, lnUrl, '.jobs-search__results-list > li');
@@ -75,16 +93,16 @@ async function main() {
 
         // --- TopCV ---
         const topcvUrl = 'https://www.topcv.vn/tim-viec-lam-backend-fresher-tai-ho-chi-minh-kl2';
-        const topcvJobs = await scrapeJobs(browser, topcvUrl, '.job-item-2');
-        console.log(formatMsg(topcvJobs.slice(0, 5), 'TopCV'));
+        const topcvJobs = await scrapeJobs(browser, topcvUrl, '.job-item-2, .job-item-search-result, .job-item-1, .job-list div');
+        console.log(formatMsg(topcvJobs, 'TopCV'));
 
         // --- TopDev ---
         const topdevFresherUrl = 'https://topdev.vn/jobs/search?job_categories_ids=2&job_levels_ids=1617&page=1&keyword=backend';
         const topdevInternUrl = 'https://topdev.vn/jobs/search?job_categories_ids=2&job_levels_ids=1616&page=1&keyword=backend';
         
         const [tdFresher, tdIntern] = await Promise.all([
-            scrapeJobs(browser, topdevFresherUrl, '.job-item, .job-card-item'),
-            scrapeJobs(browser, topdevInternUrl, '.job-item, .job-card-item')
+            scrapeJobs(browser, topdevFresherUrl, '.job-item, .job-card-item, .item-job-item'),
+            scrapeJobs(browser, topdevInternUrl, '.job-item, .job-card-item, .item-job-item')
         ]);
         console.log(formatMsg([...tdFresher, ...tdIntern].slice(0, 8), 'TopDev'));
 
