@@ -34,7 +34,7 @@ node /home/node/.openclaw/skills/it-jobs/index.js
 Khi chạy `node /home/node/.openclaw/skills/it-jobs/index.js`, hệ thống sẽ trả về chuỗi Markdown.
 
 **QUAN TRỌNG: Khi trả lời người dùng, bạn PHẢI:**
-1. **Giữ nguyên cấu trúc tin:** Trình bày theo từng nền tảng (LinkedIn, TopCV, ITViec, TopDev) như dữ liệu gốc.
-2. **Không bịa data:** Nếu một nền tảng báo lỗi bị block (403, 404) hoặc không có việc mới trong 24h, hãy báo thật cho người dùng biết (VD: "ITViec hiện đang khóa truy cập tự động" hoặc "TopCV không có job mới thỏa mãn trong hôm nay").
-3. **Format gọn gàng:** Sử dụng bullet points, làm nổi bật Tên công ty, Vị trí và thời gian cập nhật.
+1. **Liệt kê đúng 5 job mỗi nền tảng:** Hệ thống đã lọc sẵn tối đa 5 job (không ít hơn nếu có đủ nguồn) đáp ứng đúng tiêu chí Thực tập/Fresher ngôn ngữ NodeJS, JS, TS, NextJS, PHP, Java, Golang. Bạn hãy **HIỂN THỊ TOÀN BỘ** số job được trả lời, tuyệt đối không tự rút gọn.
+2. **Không bịa data:** Nếu một nền tảng báo lỗi bị block (403, 404) hoặc không tìm đủ 5 job thỏa mãn tiêu chí gắt gao trên trong 24h qua, hãy báo thật cho người dùng biết (VD: "ITViec hiện đang khóa truy cập" hoặc "TopCV chỉ tìm thấy 3 job phù hợp").
+3. **Format gọn gàng:** Sử dụng bullet points, làm nổi bật Tên công ty, Vị trí và thời gian cập nhật. Luôn giữ icon 🆕 nếu có.
 4. **Luôn cung cấp link gốc:** Bắt buộc có link để người dùng click vào xem chi tiết bài đăng tuyển dụng.

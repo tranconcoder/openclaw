@@ -119,9 +119,18 @@ app.get('/api/jobs', async (req, res) => {
 
         console.log('[Crawler API] Processing and tagging jobs...');
 
+        const techRegex = /\b(node\.?js|node|js|javascript|ts|typescript|next\.?js|next|php|java|go|golang)\b/i;
+        const levelRegex = /\b(intern|fresher|thực\s*tập|thuc\s*tap)\b/i;
+
         for (const [source, jobs] of Object.entries(jobGroups)) {
-            // Limit to top 10 as requested
-            const topJobs = jobs.slice(0, 10);
+            // Filter strictly by tech and level
+            const filteredJobs = jobs.filter(job => {
+                const titleStr = String(job.title).toLowerCase();
+                return techRegex.test(titleStr) && levelRegex.test(titleStr);
+            });
+            
+            // Limit to top 5 as requested
+            const topJobs = filteredJobs.slice(0, 5);
             combinedResults[source] = [];
             totalScrapedCount += topJobs.length;
 
