@@ -194,6 +194,9 @@
       },
       "github": {
         "enabled": false
+      },
+      "it-jobs": {
+        "enabled": true
       }
     }
   }
