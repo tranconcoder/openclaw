@@ -97,6 +97,9 @@
       "it-news": {
         "enabled": true
       },
+      "openai-whisper": {
+        "enabled": true
+      },
       "github": {
         "enabled": false
       }

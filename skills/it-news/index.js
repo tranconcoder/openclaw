@@ -8,17 +8,36 @@ async function fetchDevToNews() {
     if (!res.ok) throw new Error(`Dev.to API error: ${res.status}`);
     const data = await res.json();
     
+    // Fetch full details for the top 3 articles to include the body content
+    const articlesData = await Promise.all(
+      data.slice(0, 3).map(async (article) => {
+        try {
+          const detailRes = await fetch(`https://dev.to/api/articles/${article.id}`);
+          if (!detailRes.ok) return article;
+          return await detailRes.json();
+        } catch (e) {
+          return article; // fallback to brief summary
+        }
+      })
+    );
+
     let md = '### 👨‍💻 Dev.to Top Articles (Programming)\n\n';
-    data.slice(0, 5).forEach((article, idx) => {
-      md += `${idx + 1}. **[${article.title}](${article.url})**\n`;
-      md += `   *Tags: ${article.tag_list.join(', ')} | ❤️ ${article.public_reactions_count}*\n`;
-      if (article.description) {
-         md += `   *Summary: ${article.description}*\n\n`;
+    articlesData.forEach((article, idx) => {
+      md += `#### ${idx + 1}. [${article.title}](${article.url})\n`;
+      let tags = article.tags || article.tag_list || [];
+      if (Array.isArray(tags)) tags = tags.join(', ');
+      md += `*Tags: ${tags} | ❤️ ${article.public_reactions_count} | By: ${article.user?.name || 'Unknown'}*\n\n`;
+      
+      if (article.body_markdown) {
+         md += `<article_content>\n${article.body_markdown}\n</article_content>\n\n`;
+      } else if (article.description) {
+         md += `*Summary: ${article.description}*\n\n`;
       }
+      md += `---\n\n`;
     });
     return md;
   } catch (err) {
-    return '*(Error fetching Dev.to news)*\n\n';
+    return `*(Error fetching Dev.to news: ${err.message})*\n\n`;
   }
 }
 
