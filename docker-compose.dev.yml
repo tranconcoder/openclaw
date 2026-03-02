@@ -31,6 +31,8 @@ services:
     environment:
       - BROWSER_WS_URL=ws://browserless:3000
       - MONGODB_URI=mongodb://mongodb:27017/openclaw
+    env_file:
+      - .env.development
     depends_on:
       - browserless
       - mongodb
