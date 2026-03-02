@@ -77,7 +77,7 @@
     "defaults": {
       "model": {
         "primary": "gptoss20b",
-        "fallbacks": ["qwen-coder", "kimi"]
+        "fallbacks": ["kimi"]
       },
       "models": {
         "nvidia-nim/moonshotai/kimi-k2.5": {
