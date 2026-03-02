@@ -8,17 +8,15 @@ services:
     networks:
       - openclaw-dev-net
 
-  job-test:
-    image: node:20-slim
-    container_name: openclaw_job_test
-    volumes:
-      - ./skills/it-jobs:/app
-    working_dir: /app
+  job-crawler-api:
+    build: ./services/job-crawler-api
+    container_name: openclaw_job_crawler_api_dev
+    ports:
+      - "38080:3000"
     environment:
       - BROWSER_WS_URL=ws://browserless:3000
     depends_on:
       - browserless
-    command: node index.js
     networks:
       - openclaw-dev-net
 

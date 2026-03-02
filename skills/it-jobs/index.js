@@ -1,122 +1,51 @@
-const puppeteer = require('puppeteer-core');
+/**
+ * OpenClaw Skill: it-jobs
+ * Description: Fetches and aggregates IT backend jobs (Intern/Fresher) in HCM/Remote.
+ * This script now calls the standalone job-crawler-api microservice.
+ */
 
-// In Docker, 'browserless' is the hostname. On host, use 'localhost' if port is mapped.
-const BROWSER_WS_URL = process.env.BROWSER_WS_URL || 'ws://browserless:3000';
-
-function formatMsg(jobs, source) {
-    let md = `## 🔥 IT Jobs Mới Trên ${source} (Backend, Intern/Fresher, HCM/Remote, Hôm nay)\n\n`;
-    if (jobs.length === 0) {
-        md += `*Không tìm thấy job mới thỏa tiêu chí trong 24h qua (hoặc site chặn truy cập).* \n\n***\n\n`;
-        return md;
-    }
-    jobs.forEach((job, idx) => {
-        md += `*   **${idx + 1}. [${job.title}](${job.link})**\n`;
-        md += `    * 🏢 **Công ty:** ${job.company}\n`;
-        md += `    * 📍 **Địa điểm:** ${job.location} | ⏳ **Cập nhật:** ${job.time || 'Hôm nay/Mới nhất'}\n`;
-    });
-    return md + '\n***\n\n';
-}
-
-async function scrapeJobs(browser, url, selector) {
-    const page = await browser.newPage();
-    try {
-        await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36');
-        
-        // Wait for page to load and some content to appear
-        await page.goto(url, { waitUntil: 'networkidle2', timeout: 60000 });
-        
-        // Wait 5 seconds for CSR
-        await new Promise(r => setTimeout(r, 5000));
-        
-        const filtered = await page.$$eval(selector, (els) => {
-            return els.slice(0, 15).map(el => {
-                const linkNode = el.querySelector('a[href*="/jobs/view/"], a[href*="/jobs/"], .base-card__full-link, .title-job a, .job-item-2, a');
-                const titleNode = el.querySelector('h3, h2, .title, .job-title, .base-search-card__title');
-                const companyNode = el.querySelector('.company, .company-name, .base-search-card__subtitle, .brand-name, .sub-line-item');
-                const locationNode = el.querySelector('.location, .address, .job-search-card__location, .city');
-                const timeNode = el.querySelector('.time, .distance-time-job-posted, time, .posted-date');
-                
-                return {
-                    title: titleNode?.innerText.trim() || el.innerText.split('\n')[0].trim(),
-                    link: linkNode?.href || "",
-                    company: companyNode?.innerText.trim() || "Unknown",
-                    location: locationNode?.innerText.trim() || "Hồ Chí Minh",
-                    time: timeNode?.innerText.trim() || "Gần đây"
-                };
-            }).filter(item => {
-                const loc = item.location.toLowerCase();
-                const isHCMorRemote = loc.includes('ho chi minh') || loc.includes('hồ chí minh') || loc.includes('hcm') || loc.includes('remote') || loc.includes('từ xa') || loc.includes('vietnam') || loc.includes('toàn quốc');
-                
-                const time = item.time.toLowerCase();
-                const isToday = time.includes('giờ trước') || time.includes('phút trước') || time.includes('hôm nay') || 
-                               time.includes('hours ago') || time.includes('minutes ago') || time.includes('just now') ||
-                               time.includes('gần đây') || time.includes('mới');
-                
-                return item.title && isHCMorRemote && isToday;
-            });
-        });
-
-        return filtered;
-    } catch (err) {
-        console.error(`Error scraping ${url}:`, err.message);
-        return [];
-    } finally {
-        await page.close();
-    }
-}
+const API_URL = process.env.JOB_CRAWLER_API_URL || 'http://job-crawler-api:3000/api/jobs';
 
 async function main() {
-    console.log("# 🚀 JOBS IT BACKEND (INTERN/FRESHER) TẠI HCM/REMOTE HÔM NAY\n");
-    console.log("*Note: Sử dụng Puppeteer để lấy dữ liệu mới nhất (đảm bảo độ chính xác hơn).*\n\n***\n");
-
-    let browser;
-    let retries = 5;
-    while (retries > 0 && !browser) {
-        try {
-            browser = await puppeteer.connect({ browserWSEndpoint: BROWSER_WS_URL });
-        } catch (e) {
-            console.log(`Connecting to browser failed, retrying... (${retries} left)`);
-            retries--;
-            await new Promise(r => setTimeout(r, 2000));
-        }
-    }
-
-    if (!browser) {
-        throw new Error("Could not connect to browserless service.");
-    }
-
     try {
-        // --- LinkedIn ---
-        const lnUrl = 'https://www.linkedin.com/jobs/search/?keywords=backend%20OR%20nodejs%20OR%20php%20OR%20java%20%28intern%20OR%20fresher%29&location=Vietnam&f_TPR=r86400';
-        const lnJobs = await scrapeJobs(browser, lnUrl, '.jobs-search__results-list > li');
-        console.log(formatMsg(lnJobs.slice(0, 5), 'LinkedIn'));
+        console.log(`# 🚀 JOBS IT BACKEND (INTERN/FRESHER) TẠI HCM/REMOTE HÔM NAY\n`);
+        console.log(`*Note: Dữ liệu được tổng hợp từ nhiều nguồn thông qua Job Crawler API.*\n`);
+        console.log(`***\n`);
 
-        // --- TopCV ---
-        const topcvUrl = 'https://www.topcv.vn/tim-viec-lam-backend-fresher-tai-ho-chi-minh-kl2';
-        const topcvJobs = await scrapeJobs(browser, topcvUrl, '.job-item-2, .job-item-search-result, .job-item-1, .job-list div');
-        console.log(formatMsg(topcvJobs, 'TopCV'));
+        const response = await fetch(API_URL);
+        if (!response.ok) {
+            throw new Error(`API returned status ${response.status}`);
+        }
 
-        // --- TopDev ---
-        const topdevFresherUrl = 'https://topdev.vn/jobs/search?job_categories_ids=2&job_levels_ids=1617&page=1&keyword=backend';
-        const topdevInternUrl = 'https://topdev.vn/jobs/search?job_categories_ids=2&job_levels_ids=1616&page=1&keyword=backend';
-        
-        const [tdFresher, tdIntern] = await Promise.all([
-            scrapeJobs(browser, topdevFresherUrl, '.job-item, .job-card-item, .item-job-item'),
-            scrapeJobs(browser, topdevInternUrl, '.job-item, .job-card-item, .item-job-item')
-        ]);
-        console.log(formatMsg([...tdFresher, ...tdIntern].slice(0, 8), 'TopDev'));
+        const result = await response.json();
+        const sources = result.data || {};
 
-        // --- ITViec ---
-        const itviecUrl = 'https://itviec.com/it-jobs/backend/ho-chi-minh-hcm?job_level%5B%5D=fresher';
-        const itviecJobs = await scrapeJobs(browser, itviecUrl, '.job-card');
-        console.log(formatMsg(itviecJobs.slice(0, 5), 'ITViec'));
+        let hasJobs = false;
 
-    } catch (err) {
-        console.error("Critical Error:", err.message);
-        console.log(`*(⚠️ Lỗi kết nối trình duyệt: ${err.message})*\n\n`);
-    } finally {
-        if (browser) await browser.disconnect();
+        for (const [sourceName, jobs] of Object.entries(sources)) {
+            console.log(`## 🔥 IT Jobs Mới Trên ${sourceName.toUpperCase()} (Backend, Intern/Fresher, HCM/Remote, Hôm nay)\n`);
+            
+            if (jobs && jobs.length > 0) {
+                hasJobs = true;
+                jobs.forEach((job, index) => {
+                    console.log(`*   **${index + 1}. [${job.title}](${job.link})**`);
+                    console.log(`    * 🏢 **Công ty:** ${job.company}`);
+                    console.log(`    * 📍 **Địa điểm:** ${job.location} | ⏳ **Cập nhật:** ${job.time}`);
+                });
+            } else {
+                console.log(`*Không tìm thấy job mới thỏa tiêu chí trong 24h qua.*\n`);
+            }
+            console.log(`\n***\n`);
+        }
+
+        if (!hasJobs) {
+            console.log(`Hôm nay chưa có tin tuyển dụng Backend Intern/Fresher mới nào. Hãy quay lại sau nhé!`);
+        }
+
+    } catch (error) {
+        console.error('Lỗi khi lấy dữ liệu từ Job Crawler API:', error.message);
+        console.log(`Xin lỗi, hệ thống tìm kiếm job đang gặp sự cố kỹ thuật. Vui lòng thử lại sau.`);
     }
 }
 
-main().catch(console.error);
+main();

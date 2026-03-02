@@ -49,6 +49,17 @@ services:
     networks:
       - openclaw-net
 
+  job-crawler-api:
+    build: ./services/job-crawler-api
+    container_name: openclaw_job_crawler_api
+    restart: unless-stopped
+    environment:
+      - BROWSER_WS_URL=ws://browserless:3000
+    depends_on:
+      - browserless
+    networks:
+      - openclaw-net
+
 networks:
   openclaw-net:
     driver: bridge
