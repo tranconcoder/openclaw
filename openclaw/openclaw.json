@@ -94,6 +94,9 @@
       "blogwatcher": {
         "enabled": true
       },
+      "it-news": {
+        "enabled": true
+      },
       "github": {
         "enabled": false
       }
