@@ -36,8 +36,8 @@
         "api": "openai-completions",
         "models": [
           {
-            "id": "liquid/lfm-40b",
-            "name": "Liquid LFM 40B (OpenRouter Free)",
+            "id": "openai/gpt-oss-120b:free",
+            "name": "GPT-OSS 120B (OpenRouter Free)",
             "api": "openai-completions",
             "reasoning": false,
             "input": [
@@ -76,13 +76,13 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "qwen-coder"
+        "primary": "gptoss120b"
       },
       "models": {
         "nvidia-nim/moonshotai/kimi-k2.5": {
           "alias": "kimi"
         },
-        "openrouter/liquid/lfm-40b": {
+        "openrouter/openai/gpt-oss-120b:free": {
           "alias": "gptoss120b"
         },
         "openrouter/qwen/qwen3-coder:free": {
