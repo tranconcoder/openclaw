@@ -1,4 +1,17 @@
 {
   "version": 1,
-  "jobs": []
+  "jobs": [
+    {
+      "id": "daily-it-news",
+      "name": "Daily IT News Summary",
+      "cron": "0 8 * * *",
+      "description": "Gửi bản tin IT & Web Dev hàng ngày vào 8:00 sáng",
+      "message": "lấy tin tức IT hôm nay và tóm tắt chi tiết cho tôi",
+      "channel": "telegram",
+      "to": "${TELEGRAM_OWNER_ID}",
+      "announce": true,
+      "disabled": false,
+      "stagger": "1m"
+    }
+  ]
 }
