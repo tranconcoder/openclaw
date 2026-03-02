@@ -70,13 +70,37 @@
             "maxTokens": 8192
           }
         ]
+      },
+      "groq": {
+        "baseUrl": "https://api.groq.com/openai/v1",
+        "apiKey": "${GROQ_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "openai/gpt-oss-120b",
+            "name": "GPT-OSS 120B (Groq)",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 8192
+          }
+        ]
       }
     }
   },
   "agents": {
     "defaults": {
       "model": {
-        "primary": "gptoss20b",
+        "primary": "groq-gptoss120b",
         "fallbacks": ["kimi"]
       },
       "models": {
@@ -88,6 +112,9 @@
         },
         "openrouter/qwen/qwen3-coder:free": {
           "alias": "qwen-coder"
+        },
+        "groq/openai/gpt-oss-120b": {
+          "alias": "groq-gptoss120b"
         }
       },
       "compaction": {
