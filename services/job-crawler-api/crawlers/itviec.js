@@ -1,5 +1,5 @@
 async function scrape(browser) {
-    const url = 'https://itviec.com/it-jobs/backend/ho-chi-minh?job_level%5B%5D=intern&job_level%5B%5D=fresher';
+    const url = 'https://itviec.com/it-jobs/backend/ho-chi-minh-hcm?job_selected=backend-developer-golang-ai-wtech-vietnam-3621';
     const selector = '.job-card, .job';
     let page;
     
@@ -8,6 +8,14 @@ async function scrape(browser) {
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
         console.log(`[Crawler API - ITViec] Navigating to ${url}`);
         await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
+        
+        // Save raw HTML for evaluation
+        if (arguments[1]) {
+            const fs = require('fs');
+            const path = require('path');
+            const html = await page.content();
+            fs.writeFileSync(path.join(arguments[1], 'itviec_raw.html'), html);
+        }
         await new Promise(r => setTimeout(r, 5000));
         
         const filtered = await page.$$eval(selector, (els) => {

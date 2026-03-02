@@ -1,6 +1,5 @@
 async function scrape(browser) {
-    const url = 'https://www.vietnamworks.com/tim-viec-lam/it-phan-mem-c2?q=backend%20fresher';
-    const selector = '.job-item, [class*="job-item"]';
+    const url = 'https://www.vietnamworks.com/viec-lam?q=backend&l=29.15&g=5';
     let page;
     
     try {
@@ -8,28 +7,64 @@ async function scrape(browser) {
         await page.setUserAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36');
         console.log(`[Crawler API - VietnamWorks] Navigating to ${url}`);
         await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
-        await new Promise(r => setTimeout(r, 5000));
         
+        // Save raw HTML for evaluation
+        if (arguments[1]) {
+            const fs = require('fs');
+            const path = require('path');
+            const html = await page.content();
+            fs.writeFileSync(path.join(arguments[1], 'vietnamworks_raw.html'), html);
+        }
+        
+        // Use __NEXT_DATA__ extraction if possible
+        const data = await page.evaluate(() => {
+            const el = document.getElementById('__NEXT_DATA__');
+            if (el) {
+                try {
+                    const json = JSON.parse(el.innerText);
+                    // Path: props.pageProps.initialState.jobList.data
+                    return json.props?.pageProps?.initialState?.jobList?.data || [];
+                } catch (e) {
+                    return [];
+                }
+            }
+            return [];
+        });
+
+        if (data.length > 0) {
+            console.log(`[Crawler API - VietnamWorks] Extracted ${data.length} jobs from __NEXT_DATA__`);
+            return data.map(item => ({
+                title: item.jobTitle || "",
+                link: item.jobUrl ? `https://www.vietnamworks.com${item.jobUrl}` : "",
+                company: item.companyName || "Unknown",
+                location: item.locationName || "Hồ Chí Minh",
+                time: "Hôm nay",
+                source: "VietnamWorks"
+            })).filter(job => job.title && job.link);
+        }
+
+        // Fallback to DOM if JSON fails
+        const selector = '.job-item, [class*="job-item"], div.block-job-list > div, div.block-job-list a';
+        await new Promise(r => setTimeout(r, 5000));
         const filtered = await page.$$eval(selector, (els) => {
             return els.slice(0, 10).map(el => {
                 const linkNode = el.querySelector('a');
                 const titleNode = el.querySelector('h3, h2, [class*="title"]');
                 const companyNode = el.querySelector('[class*="company"]');
-                const locationNode = el.querySelector('[class*="location"], [class*="address"]');
-                const timeNode = el.querySelector('[class*="posted"], [class*="time"]');
+                const locationNode = el.querySelector('[class*="address"], [class*="location"]');
+                const timeNode = el.querySelector('[class*="time"], [class*="updated"]');
                 
                 return {
                     title: titleNode?.innerText.trim() || el.innerText.split('\n')[0].trim(),
-                    link: linkNode?.href || "",
+                    link: el.href || linkNode?.href || "",
                     company: companyNode?.innerText.trim() || "Unknown",
                     location: locationNode?.innerText.trim() || "Hồ Chí Minh",
-                    time: timeNode?.innerText.trim() || "Mới đây",
+                    time: timeNode?.innerText.trim() || "Hôm nay",
                     source: "VietnamWorks"
                 };
             }).filter(item => item.title && item.link);
         });
 
-        console.log(`[Crawler API - VietnamWorks] Found ${filtered.length} matching jobs.`);
         return filtered;
     } catch (err) {
         console.error(`[Crawler API - VietnamWorks] Error:`, err.message);

@@ -23,19 +23,16 @@ async function main() {
         let hasJobs = false;
 
         for (const [sourceName, jobs] of Object.entries(sources)) {
-            console.log(`## 🔥 IT Jobs Mới Trên ${sourceName.toUpperCase()} (Backend, Intern/Fresher, HCM/Remote, Hôm nay)\n`);
-            
             if (jobs && jobs.length > 0) {
                 hasJobs = true;
+                console.log(`## 🔥 IT Jobs Mới Trên ${sourceName.toUpperCase()} (Backend, Intern/Fresher, HCM/Remote, Hôm nay)\n`);
                 jobs.forEach((job, index) => {
                     console.log(`*   **${index + 1}. [${job.title}](${job.link})**`);
                     console.log(`    * 🏢 **Công ty:** ${job.company}`);
                     console.log(`    * 📍 **Địa điểm:** ${job.location} | ⏳ **Cập nhật:** ${job.time}`);
                 });
-            } else {
-                console.log(`*Không tìm thấy job mới thỏa tiêu chí trong 24h qua.*\n`);
+                console.log(`\n***\n`);
             }
-            console.log(`\n***\n`);
         }
 
         if (!hasJobs) {

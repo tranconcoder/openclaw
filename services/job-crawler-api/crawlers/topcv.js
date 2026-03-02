@@ -9,6 +9,14 @@ async function scrape(browser) {
         console.log(`[Crawler API - TopCV] Navigating to ${url}`);
         await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
         
+        // Save raw HTML for evaluation
+        if (arguments[1]) {
+            const fs = require('fs');
+            const path = require('path');
+            const html = await page.content();
+            fs.writeFileSync(path.join(arguments[1], 'topcv_raw.html'), html);
+        }
+        
         await new Promise(r => setTimeout(r, 5000));
         
         const filtered = await page.$$eval(selector, (els) => {

@@ -1,9 +1,32 @@
 const express = require('express');
 const puppeteer = require('puppeteer-core');
+const fs = require('fs');
+const path = require('path');
+const mongoose = require('mongoose');
 
 const app = express();
 const port = process.env.PORT || 3000;
 const BROWSER_WS_URL = process.env.BROWSER_WS_URL || 'ws://browserless:3000';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongodb:27017/openclaw';
+
+// MongoDB Connection
+mongoose.connect(MONGODB_URI)
+    .then(() => console.log('[Crawler API] Connected to MongoDB'))
+    .catch(err => console.error('[Crawler API] MongoDB connection error:', err));
+
+// Job Schema
+const jobSchema = new mongoose.Schema({
+    title: String,
+    company: String,
+    location: String,
+    time: String,
+    link: { type: String, unique: true },
+    source: String,
+    raw_data: Object,
+    scrapedAt: { type: Date, default: Date.now }
+}, { timestamps: true });
+
+const Job = mongoose.model('Job', jobSchema);
 
 app.use(express.json());
 
@@ -47,6 +70,12 @@ app.get('/api/jobs', async (req, res) => {
 
         console.log('[Crawler API] Browser connected, starting crawlers...');
 
+        // Ensure data/raw directory exists
+        const dataDir = path.join(__dirname, 'data');
+        const rawDir = path.join(dataDir, 'raw');
+        if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+        if (!fs.existsSync(rawDir)) fs.mkdirSync(rawDir);
+
         // Start scraping concurrently
         const [
             linkedinJobs, 
@@ -59,15 +88,15 @@ app.get('/api/jobs', async (req, res) => {
             facebookJobs,
             vieclam24hJobs
         ] = await Promise.all([
-            linkedinCrawler.scrape(browser),
-            topcvCrawler.scrape(browser),
-            topdevCrawler.scrape(browser),
-            itviecCrawler.scrape(browser),
-            vietnamWorksCrawler.scrape(browser),
-            careerVietCrawler.scrape(browser),
-            glintsCrawler.scrape(browser),
-            facebookCrawler.scrape(browser),
-            vieclam24hCrawler.scrape(browser)
+            linkedinCrawler.scrape(browser, rawDir),
+            topcvCrawler.scrape(browser, rawDir),
+            topdevCrawler.scrape(browser, rawDir),
+            itviecCrawler.scrape(browser, rawDir),
+            vietnamWorksCrawler.scrape(browser, rawDir),
+            careerVietCrawler.scrape(browser, rawDir),
+            glintsCrawler.scrape(browser, rawDir),
+            facebookCrawler.scrape(browser, rawDir),
+            vieclam24hCrawler.scrape(browser, rawDir)
         ]);
 
         const results = {
@@ -87,6 +116,36 @@ app.get('/api/jobs', async (req, res) => {
                 timestamp: new Date().toISOString()
             }
         };
+
+        // Save raw response to data directory for debugging/evaluation as requested
+        try {
+            const dataDir = path.join(__dirname, 'data');
+            if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+            fs.writeFileSync(path.join(dataDir, 'raw_response.json'), JSON.stringify(results, null, 2));
+            console.log(`[Crawler API] Raw response saved to ${path.join(dataDir, 'raw_response.json')}`);
+        } catch (err) {
+            console.error('[Crawler API] Failed to save raw response:', err.message);
+        }
+
+        // Save to MongoDB (Upsert)
+        const allJobs = [
+            ...linkedinJobs, ...topcvJobs, ...topdevJobs, ...itviecJobs, 
+            ...vietnamWorksJobs, ...careerVietJobs, ...glintsJobs, 
+            ...facebookJobs, ...vieclam24hJobs
+        ];
+
+        console.log(`[Crawler API] Saving ${allJobs.length} jobs to MongoDB...`);
+        for (const job of allJobs) {
+            try {
+                await Job.findOneAndUpdate(
+                    { link: job.link },
+                    { $set: job },
+                    { upsert: true, new: true }
+                );
+            } catch (err) {
+                console.error(`[Crawler API] Error saving job ${job.link}:`, err.message);
+            }
+        }
 
         res.json(results);
 

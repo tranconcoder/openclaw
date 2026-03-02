@@ -8,17 +8,37 @@ services:
     networks:
       - openclaw-dev-net
 
+  mongodb:
+    image: mongo:latest
+    container_name: openclaw_mongodb_dev
+    restart: unless-stopped
+    ports:
+      - "27018:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - openclaw-dev-net
+
   job-crawler-api:
     build: ./services/job-crawler-api
     container_name: openclaw_job_crawler_api_dev
+    user: "1000:1000"
     ports:
       - "38080:3000"
+    volumes:
+      - ./services/job-crawler-api:/app
+      - ./services/job-crawler-api/data:/app/data
     environment:
       - BROWSER_WS_URL=ws://browserless:3000
+      - MONGODB_URI=mongodb://mongodb:27017/openclaw
     depends_on:
       - browserless
+      - mongodb
     networks:
       - openclaw-dev-net
+
+volumes:
+  mongodb_data:
 
 networks:
   openclaw-dev-net:
