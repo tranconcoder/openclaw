@@ -44,7 +44,7 @@ async function scrape(browser) {
         console.error(`[Crawler API - Vieclam24h] Error:`, err.message);
         return [];
     } finally {
-        if (page) await page.close();
+        if (page) await page.close().catch(() => {});
     }
 }
 

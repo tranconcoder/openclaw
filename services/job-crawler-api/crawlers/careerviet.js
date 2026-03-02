@@ -54,7 +54,7 @@ async function scrape(browser) {
         console.error(`[Crawler API - CareerViet] Error:`, err.message);
         return allJobs; // Return what we have so far
     } finally {
-        if (page) await page.close();
+        if (page) await page.close().catch(() => {});
     }
 }
 

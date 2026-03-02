@@ -51,7 +51,7 @@ async function scrape(browser, rawDir) {
         } catch (err) {
             console.error(`[Crawler API - TopDev] Error scraping ${url}:`, err.message);
         } finally {
-            if (page) await page.close();
+            if (page) await page.close().catch(() => {});
         }
     }
     return allJobs;

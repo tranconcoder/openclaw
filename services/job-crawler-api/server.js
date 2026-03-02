@@ -82,15 +82,23 @@ app.get('/api/jobs', async (req, res) => {
         // Start scraping sequentially to avoid OOM on VPS
         console.log('[Crawler API] Scraping sources sequentially...');
         
-        const linkedinJobs = await linkedinCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null);
-        const topcvJobs = await topcvCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null);
-        const topdevJobs = await topdevCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null);
-        const itviecJobs = await itviecCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null);
-        const vietnamWorksJobs = await vietnamWorksCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null);
-        const careerVietJobs = await careerVietCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null);
-        const glintsJobs = await glintsCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null);
-        const facebookJobs = await facebookCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null);
-        const vieclam24hJobs = await vieclam24hCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null);
+        const linkedinJobs = await linkedinCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null).catch(() => []);
+        await new Promise(r => setTimeout(r, 2000));
+        const topcvJobs = await topcvCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null).catch(() => []);
+        await new Promise(r => setTimeout(r, 2000));
+        const topdevJobs = await topdevCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null).catch(() => []);
+        await new Promise(r => setTimeout(r, 2000));
+        const itviecJobs = await itviecCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null).catch(() => []);
+        await new Promise(r => setTimeout(r, 2000));
+        const vietnamWorksJobs = await vietnamWorksCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null).catch(() => []);
+        await new Promise(r => setTimeout(r, 2000));
+        const careerVietJobs = await careerVietCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null).catch(() => []);
+        await new Promise(r => setTimeout(r, 2000));
+        const glintsJobs = await glintsCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null).catch(() => []);
+        await new Promise(r => setTimeout(r, 2000));
+        const facebookJobs = await facebookCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null).catch(() => []);
+        await new Promise(r => setTimeout(r, 2000));
+        const vieclam24hJobs = await vieclam24hCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null).catch(() => []);
 
         // Process and filter jobs (check against MongoDB)
         const jobGroups = {
