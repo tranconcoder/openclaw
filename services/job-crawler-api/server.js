@@ -8,6 +8,7 @@ const app = express();
 const port = process.env.PORT || 3000;
 const BROWSER_WS_URL = process.env.BROWSER_WS_URL || 'ws://browserless:3000';
 const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://mongodb:27017/openclaw';
+const DISABLE_FILE_LOGGING = process.env.DISABLE_FILE_LOGGING === 'true';
 
 // MongoDB Connection
 mongoose.connect(MONGODB_URI)
@@ -70,11 +71,13 @@ app.get('/api/jobs', async (req, res) => {
 
         console.log('[Crawler API] Browser connected, starting crawlers...');
 
-        // Ensure data/raw directory exists
+        // Ensure data/raw directory exists (optional)
         const dataDir = path.join(__dirname, 'data');
         const rawDir = path.join(dataDir, 'raw');
-        if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-        if (!fs.existsSync(rawDir)) fs.mkdirSync(rawDir);
+        if (!DISABLE_FILE_LOGGING) {
+            if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+            if (!fs.existsSync(rawDir)) fs.mkdirSync(rawDir);
+        }
 
         // Start scraping concurrently
         const [
@@ -88,15 +91,15 @@ app.get('/api/jobs', async (req, res) => {
             facebookJobs,
             vieclam24hJobs
         ] = await Promise.all([
-            linkedinCrawler.scrape(browser, rawDir),
-            topcvCrawler.scrape(browser, rawDir),
-            topdevCrawler.scrape(browser, rawDir),
-            itviecCrawler.scrape(browser, rawDir),
-            vietnamWorksCrawler.scrape(browser, rawDir),
-            careerVietCrawler.scrape(browser, rawDir),
-            glintsCrawler.scrape(browser, rawDir),
-            facebookCrawler.scrape(browser, rawDir),
-            vieclam24hCrawler.scrape(browser, rawDir)
+            linkedinCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null),
+            topcvCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null),
+            topdevCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null),
+            itviecCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null),
+            vietnamWorksCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null),
+            careerVietCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null),
+            glintsCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null),
+            facebookCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null),
+            vieclam24hCrawler.scrape(browser, !DISABLE_FILE_LOGGING ? rawDir : null)
         ]);
 
         // Process and filter jobs (check against MongoDB)
@@ -151,13 +154,15 @@ app.get('/api/jobs', async (req, res) => {
             }
         };
 
-        // Save raw response to data directory for debugging
-        try {
-            const dataDir = path.join(__dirname, 'data');
-            if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-            fs.writeFileSync(path.join(dataDir, 'raw_response.json'), JSON.stringify(results, null, 2));
-        } catch (err) {
-            console.error('[Crawler API] Failed to save raw response:', err.message);
+        // Save raw response to data directory for debugging (optional)
+        if (!DISABLE_FILE_LOGGING) {
+            try {
+                const dataDir = path.join(__dirname, 'data');
+                if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
+                fs.writeFileSync(path.join(dataDir, 'raw_response.json'), JSON.stringify(results, null, 2));
+            } catch (err) {
+                console.error('[Crawler API] Failed to save raw response:', err.message);
+            }
         }
 
         res.json(results);

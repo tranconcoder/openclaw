@@ -22,6 +22,7 @@ services:
   job-crawler-api:
     build: ./services/job-crawler-api
     container_name: openclaw_job_crawler_api_dev
+    user: "1000:1000"
     ports:
       - "38080:3000"
     volumes:

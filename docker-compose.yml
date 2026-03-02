@@ -63,12 +63,12 @@ services:
   job-crawler-api:
     build: ./services/job-crawler-api
     container_name: openclaw_job_crawler_api
+    user: "1000:1000"
     restart: unless-stopped
-    volumes:
-      - ./services/job-crawler-api/data:/app/data
     environment:
       - BROWSER_WS_URL=ws://browserless:3000
       - MONGODB_URI=mongodb://mongodb:27017/openclaw
+      - DISABLE_FILE_LOGGING=true
     depends_on:
       - browserless
       - mongodb
