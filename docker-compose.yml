@@ -37,3 +37,18 @@ services:
       - GOG_KEYRING_PASSWORD=${GOG_KEYRING_PASSWORD:-openclaw}
     env_file:
       - .env
+    networks:
+      - openclaw-net
+
+  browserless:
+    image: browserless/chrome:latest
+    container_name: openclaw_browserless
+    restart: unless-stopped
+    environment:
+      - MAX_CONCURRENT_SESSIONS=10
+    networks:
+      - openclaw-net
+
+networks:
+  openclaw-net:
+    driver: bridge
