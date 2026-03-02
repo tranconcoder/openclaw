@@ -1,10 +1,5 @@
 .env*
 !.env.example
-openclaw/agents/
-openclaw/credentials/
-openclaw/canvas/
-openclaw/telegram/
-openclaw/workspace/
-openclaw/identity/
-openclaw/devices/
+openclaw/*
+!openclaw/devices/pending.json
 openclaw-gog-config/
