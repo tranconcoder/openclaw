@@ -76,7 +76,7 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "kimi"
+        "primary": "qwen-coder"
       },
       "models": {
         "nvidia-nim/moonshotai/kimi-k2.5": {
