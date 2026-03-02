@@ -29,3 +29,15 @@ Get the latest aggregated news focusing on IT, software programming, and web dev
 ```bash
 node /app/skills/it-news/index.js
 ```
+
+## Response Guidelines for LLM
+
+When the `node /app/skills/it-news/index.js` command is executed, it returns a structured Markdown output. 
+
+**IMPORTANT: When presenting this news to the user, you MUST:**
+1. **Maintain the Session Structure**: Keep each news item in its own section as provided in the tool output.
+2. **Use the separator**: Use `***` or a clear horizontal rule between articles.
+3. **Format Headers**: Use `### 👨‍💻 [N] Title` format for each Dev.to article.
+4. **Preserve Metadata**: Always show the `> 🔗 [Link]`, `> 🏷️ Tags`, and `> 👤 Author` block exactly as formatted.
+5. **Conciseness**: If the user asks for a specific summary, you can further condense, but by default, present the sectioned content clearly.
+6. **Language**: Always respond in the language used by the user (Vietnamese in this context).
