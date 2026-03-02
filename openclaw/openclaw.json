@@ -1,0 +1,105 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.2.27",
+    "lastTouchedAt": "2026-03-01T12:31:25.020Z"
+  },
+  "models": {
+    "mode": "merge",
+    "providers": {
+      "nvidia-nim": {
+        "baseUrl": "https://integrate.api.nvidia.com/v1",
+        "apiKey": "${MOONSHOT_API_KEY}",
+        "api": "openai-completions",
+        "models": [
+          {
+            "id": "moonshotai/kimi-k2.5",
+            "name": "Kimi K2.5 (NVIDIA)",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 200000,
+            "maxTokens": 8192
+          }
+        ]
+      }
+    }
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "kimi"
+      },
+      "models": {
+        "nvidia-nim/moonshotai/kimi-k2.5": {
+          "alias": "kimi"
+        }
+      },
+      "compaction": {
+        "mode": "safeguard"
+      },
+      "maxConcurrent": 4,
+      "subagents": {
+        "maxConcurrent": 8
+      }
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": true,
+    "ownerDisplay": "raw"
+  },
+  "channels": {
+    "telegram": {
+      "enabled": true,
+      "dmPolicy": "allowlist",
+      "allowFrom": ["${TELEGRAM_OWNER_ID}"],
+      "groupPolicy": "allowlist",
+      "groupAllowFrom": ["${TELEGRAM_OWNER_ID}"],
+      "botToken": "${TELEGRAM_BOT_TOKEN}",
+      "streaming": "off"
+    }
+  },
+  "gateway": {
+    "trustedProxies": [
+      "127.0.0.1"
+    ],
+    "bind": "lan",
+    "port": 18789,
+    "mode": "local",
+    "controlUi": {
+      "allowedOrigins": [
+        "${OPENCLAW_CORS_ORIGIN}"
+      ],
+      "allowInsecureAuth": true
+    },
+    "auth": {
+      "mode": "token",
+      "token": "${OPENCLAW_GATEWAY_TOKEN}"
+    }
+  },
+  "skills": {
+    "entries": {
+      "gog": {
+        "enabled": true
+      },
+      "blogwatcher": {
+        "enabled": true
+      },
+      "it-news": {
+        "enabled": true
+      },
+      "github": {
+        "enabled": false
+      }
+    }
+  }
+}

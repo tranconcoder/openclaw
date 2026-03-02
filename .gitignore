@@ -1,5 +1,8 @@
 .env*
 !.env.example
 openclaw/*
+!openclaw/openclaw.json
+!openclaw/cron/
+!openclaw/cron/jobs.json
 !openclaw/devices/pending.json
 openclaw-gog-config/
