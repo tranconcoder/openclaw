@@ -3,7 +3,6 @@
 openclaw/agents/
 openclaw/credentials/
 openclaw/canvas/
-openclaw/cron/
 openclaw/telegram/
 openclaw/workspace/
 openclaw/identity/

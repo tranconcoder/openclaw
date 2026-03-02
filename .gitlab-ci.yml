@@ -19,7 +19,7 @@ deploy:
     - echo "--- Preparing deployment directory ---"
     - mkdir -p $DEPLOY_FOLDER
     - echo "--- Syncing files from CI workspace to server ---"
-    - rsync -av --delete --exclude '.git' --exclude 'openclaw/agents/' --exclude 'openclaw/canvas/' --exclude 'openclaw/credentials/' --exclude 'openclaw/cron/' ./ $DEPLOY_FOLDER/
+    - rsync -av --delete --exclude '.git' --exclude 'openclaw/agents/' --exclude 'openclaw/canvas/' --exclude 'openclaw/credentials/' ./ $DEPLOY_FOLDER/
     - cd $DEPLOY_FOLDER
     - echo "--- Creating .env file from GitLab CI variable ---"
     - cp $ENV_FILE .env
