@@ -27,12 +27,14 @@ async function scrape(browser) {
                 const locationNode = el.querySelector('.location, .address, .job-search-card__location, .city');
                 const timeNode = el.querySelector('.time, .distance-time-job-posted, time, .posted-date');
                 
+                const descNode = el.querySelector('.label-content, .job-snippet, .tag-list, .skill-tag, p');
                 return {
                     title: titleNode?.innerText.trim() || el.innerText.split('\n')[0].trim(),
                     link: linkNode?.href || "",
                     company: companyNode?.innerText.trim() || "Unknown",
                     location: locationNode?.innerText.trim() || "Hồ Chí Minh",
                     time: timeNode?.innerText.trim() || "Gần đây",
+                    description: descNode?.innerText.trim() || "",
                     source: "TopCV"
                 };
             }).filter(item => {

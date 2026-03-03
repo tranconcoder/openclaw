@@ -21,6 +21,7 @@ const jobSchema = new mongoose.Schema({
     company: String,
     location: String,
     time: String,
+    description: String,
     link: { type: String, unique: true },
     source: String,
     raw_data: Object,
@@ -41,6 +42,67 @@ const careerVietCrawler = require('./crawlers/careerviet');
 const glintsCrawler = require('./crawlers/glints');
 const facebookCrawler = require('./crawlers/facebook');
 const vieclam24hCrawler = require('./crawlers/vieclam24h');
+
+// Platform display names
+const SOURCE_EMOJIS = {
+    linkedin: '🔗',
+    topcv: '📋',
+    topdev: '💻',
+    itviec: '🏆',
+    vietnamworks: '🇻🇳',
+    careerviet: '🌟',
+    glints: '✨',
+    facebook: '📘',
+    vieclam24h: '⏰'
+};
+
+/**
+ * Build a beautiful markdown response from job results.
+ * Only returns jobs that are NEW (isNew: true), up to 5 per platform.
+ */
+function buildMarkdownResponse(combinedResults, metadata) {
+    const lines = [];
+    const now = new Date().toLocaleString('vi-VN', { timeZone: 'Asia/Ho_Chi_Minh' });
+
+    lines.push(`# 💼 IT JOBS BACKEND — INTERN / FRESHER`);
+    lines.push(`> 📅 Cập nhật: ${now} | 🆕 Tổng job mới: **${metadata.totalNew}** | 🔍 Tổng đã quét: **${metadata.totalScraped}**\n`);
+    lines.push(`---\n`);
+
+    let hasAnyJob = false;
+
+    for (const [source, jobs] of Object.entries(combinedResults)) {
+        if (!jobs || jobs.length === 0) continue;
+
+        const emoji = SOURCE_EMOJIS[source] || '📌';
+        const sourceName = source.toUpperCase();
+        lines.push(`## ${emoji} ${sourceName}\n`);
+
+        jobs.forEach((job, index) => {
+            const newBadge = job.isNew ? ' `🆕 MỚI`' : '';
+            lines.push(`### ${index + 1}. [${job.title}](${job.link})${newBadge}`);
+            lines.push(`| | |`);
+            lines.push(`|---|---|`);
+            lines.push(`| 🏢 **Công ty** | ${job.company} |`);
+            lines.push(`| 📍 **Địa điểm** | ${job.location} |`);
+            lines.push(`| ⏳ **Cập nhật** | ${job.time} |`);
+            if (job.description) {
+                // Trim to avoid super long descriptions in the markdown
+                const desc = job.description.replace(/\n+/g, ' ').trim().slice(0, 200);
+                lines.push(`| 📝 **Mô tả** | ${desc}${job.description.length > 200 ? '...' : ''} |`);
+            }
+            lines.push(``);
+            hasAnyJob = true;
+        });
+
+        lines.push(`---\n`);
+    }
+
+    if (!hasAnyJob) {
+        lines.push(`> ⚠️ Hôm nay chưa tìm thấy job Backend Intern/Fresher mới nào phù hợp. Hãy quay lại sau!\n`);
+    }
+
+    return lines.join('\n');
+}
 
 app.get('/api/jobs', async (req, res) => {
     const keyword = req.query.keyword || 'backend';
@@ -113,6 +175,7 @@ app.get('/api/jobs', async (req, res) => {
             vieclam24h: vieclam24hJobs
         };
 
+        // Combined results: only NEW jobs (up to 5 per platform) returned to skill
         const combinedResults = {};
         let totalScrapedCount = 0;
         let totalNewCount = 0;
@@ -128,13 +191,14 @@ app.get('/api/jobs', async (req, res) => {
                 const titleStr = String(job.title).toLowerCase();
                 return techRegex.test(titleStr) && levelRegex.test(titleStr);
             });
-            
-            // Limit to top 5 as requested
-            const topJobs = filteredJobs.slice(0, 5);
-            combinedResults[source] = [];
-            totalScrapedCount += topJobs.length;
 
-            for (const job of topJobs) {
+            totalScrapedCount += filteredJobs.length;
+            combinedResults[source] = [];
+
+            // Classify all as new/existing first, collect new ones
+            const newJobs = [];
+
+            for (const job of filteredJobs) {
                 try {
                     // Update if exists, insert if not. Return original doc.
                     const existingJob = await Job.findOneAndUpdate(
@@ -142,43 +206,46 @@ app.get('/api/jobs', async (req, res) => {
                         { $set: { ...job, scrapedAt: new Date() } },
                         { upsert: true, new: false }
                     );
-
                     const isNew = !existingJob;
-                    if (isNew) totalNewCount++;
-                    
-                    combinedResults[source].push({
-                        ...job,
-                        isNew: isNew
-                    });
+                    if (isNew) {
+                        newJobs.push({ ...job, isNew: true });
+                    }
                 } catch (err) {
                     console.error(`[Crawler API] Error processing job ${job.link}:`, err.message);
-                    // Add to results anyway to ensure client gets data
-                    combinedResults[source].push({ ...job, isNew: false });
                 }
+            }
+
+            // Only deliver up to 5 NEW jobs per platform to skill
+            const deliveredNew = newJobs.slice(0, 5);
+            totalNewCount += deliveredNew.length;
+
+            // Add to results: 5 newest new jobs (rest saved in DB for future calls)
+            combinedResults[source] = deliveredNew;
+
+            if (newJobs.length > 5) {
+                console.log(`[Crawler API] ${source}: ${newJobs.length} new jobs found, delivering only top 5. Remaining ${newJobs.length - 5} saved to DB for next call.`);
             }
         }
 
-        const results = {
-            data: combinedResults,
-            metadata: {
-                totalNew: totalNewCount,
-                totalScraped: totalScrapedCount,
-                timestamp: new Date().toISOString()
-            }
-        };
+        const markdown = buildMarkdownResponse(combinedResults, {
+            totalNew: totalNewCount,
+            totalScraped: totalScrapedCount,
+            timestamp: new Date().toISOString()
+        });
 
         // Save raw response to data directory for debugging (optional)
         if (!DISABLE_FILE_LOGGING) {
             try {
-                const dataDir = path.join(__dirname, 'data');
                 if (!fs.existsSync(dataDir)) fs.mkdirSync(dataDir);
-                fs.writeFileSync(path.join(dataDir, 'raw_response.json'), JSON.stringify(results, null, 2));
+                fs.writeFileSync(path.join(dataDir, 'raw_response.md'), markdown);
             } catch (err) {
                 console.error('[Crawler API] Failed to save raw response:', err.message);
             }
         }
 
-        res.json(results);
+        // Return markdown as plain text for the skill to consume directly
+        res.setHeader('Content-Type', 'text/plain; charset=utf-8');
+        res.send(markdown);
 
     } catch (error) {
         console.error('[Crawler API] Error scraping jobs:', error);

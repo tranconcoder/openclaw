@@ -34,12 +34,14 @@ async function scrape(browser) {
                     const locationNode = el.querySelector('.location');
                     const timeNode = el.querySelector('.time, .post-date');
                     
+                    const descNode = el.querySelector('.job-snippet, .skills, .tag, p');
                     return {
                         title: titleNode?.innerText.trim() || el.innerText.split('\n')[0].trim(),
                         link: linkNode?.href || "",
                         company: companyNode?.innerText.trim() || "Unknown",
                         location: locationNode?.innerText.trim() || "Hồ Chí Minh",
                         time: timeNode?.innerText.trim() || "Hôm nay",
+                        description: descNode?.innerText.trim() || "",
                         source: `CareerViet (${level})`
                     };
                 }).filter(item => item.title && item.link);

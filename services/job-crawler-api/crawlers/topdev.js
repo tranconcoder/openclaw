@@ -36,12 +36,14 @@ async function scrape(browser, rawDir) {
                     const locationNode = el.querySelector('.location, .address, .city, [class*="location"]');
                     const timeNode = el.querySelector('.time, .distance-time-job-posted, .posted-date, [class*="time"]');
                     
+                    const descNode = el.querySelector('.job-description, .description, .skills, [class*="skill"], [class*="tag"], p');
                     return {
                         title: titleNode?.innerText.trim() || el.innerText.split('\n')[0].trim(),
                         link: linkNode?.href || "",
                         company: companyNode?.innerText.trim() || "Unknown",
                         location: locationNode?.innerText.trim() || "Hồ Chí Minh",
                         time: timeNode?.innerText.trim() || "Gần đây",
+                        description: descNode?.innerText.trim() || "",
                         source: "TopDev"
                     };
                 }).filter(item => item.title && item.link && item.link.includes('http'));

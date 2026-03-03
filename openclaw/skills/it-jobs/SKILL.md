@@ -31,10 +31,19 @@ node /home/node/.openclaw/skills/it-jobs/index.js
 
 ## Hướng dẫn phản hồi cho LLM
 
-Khi chạy `node /home/node/.openclaw/skills/it-jobs/index.js`, hệ thống sẽ trả về chuỗi Markdown.
+Khi chạy `node /home/node/.openclaw/skills/it-jobs/index.js`, hệ thống sẽ trả về chuỗi Markdown đã được định dạng sẵn.
 
 **QUAN TRỌNG: Khi trả lời người dùng, bạn PHẢI:**
-1. **Liệt kê đúng 5 job mỗi nền tảng:** Hệ thống đã lọc sẵn tối đa 5 job (không ít hơn nếu có đủ nguồn) đáp ứng đúng tiêu chí Thực tập/Fresher ngôn ngữ NodeJS, JS, TS, NextJS, PHP, Java, Golang. Bạn hãy **HIỂN THỊ TOÀN BỘ** số job được trả lời, tuyệt đối không tự rút gọn.
-2. **Không bịa data:** Nếu một nền tảng báo lỗi bị block (403, 404) hoặc không tìm đủ 5 job thỏa mãn tiêu chí gắt gao trên trong 24h qua, hãy báo thật cho người dùng biết (VD: "ITViec hiện đang khóa truy cập" hoặc "TopCV chỉ tìm thấy 3 job phù hợp").
-3. **Format gọn gàng:** Sử dụng bullet points, làm nổi bật Tên công ty, Vị trí và thời gian cập nhật. Luôn giữ icon 🆕 nếu có.
-4. **Luôn cung cấp link gốc:** Bắt buộc có link để người dùng click vào xem chi tiết bài đăng tuyển dụng.
+
+1. **In nguyên kết quả Markdown** được trả về từ script mà không cắt gọn hay chỉnh sửa. Đây là dữ liệu thực tế đã được lọc và định dạng sẵn.
+
+2. **Thêm phần dẫn nhập ngắn** (2-3 câu trước kết quả), ví dụ:
+   > "Dưới đây là danh sách các job IT Backend Intern/Fresher mới nhất vừa được cập nhật từ các nền tảng tuyển dụng. Những job có badge 🆕 MỚI là những job lần đầu xuất hiện và chưa từng được ghi nhận trước đó."
+
+3. **Thêm phần phân tích ngắn sau kết quả** (nếu có job), bao gồm:
+   - 🏅 **Job ngon nhất** (hoặc đáng ứng tuyển nhất): Dựa trên tên công ty, mô tả, hoặc vị trí. Giải thích lý do ngắn gọn (uy tín công ty, rõ ràng về công nghệ, mô tả hấp dẫn...).
+   - 💡 **Lưu ý nhỏ** nếu cần (ví dụ: một số nền tảng trả về ít job hơn 5 do bộ lọc nghiêm ngặt).
+
+4. **Không bịa data:** Nếu một nền tảng báo lỗi bị block (403, 404) hoặc không tìm thấy job mới, hãy thông báo thật cho người dùng biết.
+
+5. **Luôn cung cấp link gốc:** Đảm bảo người dùng có thể click vào từng link để xem chi tiết bài đăng.

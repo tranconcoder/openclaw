@@ -25,13 +25,15 @@ async function scrape(browser) {
                 const companyNode = el.querySelector('.company, .company-name');
                 const locationNode = el.querySelector('.location, .address, .city');
                 const timeNode = el.querySelector('.time, .posted-date');
-                
+                const descNode = el.querySelector('.skills-list, .job-skills, .job-content, .tag, p');
+
                 return {
                     title: titleNode?.innerText.trim() || el.innerText.split('\n')[0].trim(),
                     link: linkNode?.href || "",
                     company: companyNode?.innerText.trim() || "Unknown",
                     location: locationNode?.innerText.trim() || "Hồ Chí Minh",
                     time: timeNode?.innerText.trim() || "Hôm nay",
+                    description: descNode?.innerText.trim() || "",
                     source: "ITViec"
                 };
             }).filter(item => item.title && item.link);

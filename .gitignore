@@ -4,4 +4,8 @@ openclaw/*
 !openclaw/openclaw.json
 !openclaw/devices/pending.json
 !openclaw/devices/paired.json
+!openclaw/skills/
+!openclaw/skills/it-jobs/
+!openclaw/skills/it-jobs/SKILL.md
+!openclaw/skills/it-jobs/index.js
 openclaw-gog-config/

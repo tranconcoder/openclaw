@@ -26,6 +26,7 @@ async function scrape(browser) {
                 const locationNode = el.querySelector('[class*="CompanyLocation__Location"]');
                 const timeNode = el.querySelector('[class*="UpdatedAt"]');
                 
+                const descNode = el.querySelector('[class*="JobRequirement"], [class*="Requirement"], [class*="Skills"], [class*="Tag"], [class*="skill"], p');
                 const linkSrc = el.href || (el.closest && el.closest('a') ? el.closest('a').href : null) || linkNode?.href || "";
                 const finalLink = linkSrc && linkSrc.startsWith('/') ? `https://glints.com${linkSrc}` : linkSrc;
                 return {
@@ -34,6 +35,7 @@ async function scrape(browser) {
                     company: companyNode?.innerText.trim() || "Unknown",
                     location: locationNode?.innerText.trim() || "Hồ Chí Minh",
                     time: timeNode?.innerText.trim() || "Hôm nay",
+                    description: descNode?.innerText.trim() || "",
                     source: "Glints"
                 };
             }).filter(item => item.title && item.link);

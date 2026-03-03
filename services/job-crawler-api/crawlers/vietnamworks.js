@@ -39,6 +39,7 @@ async function scrape(browser) {
                 company: item.companyName || "Unknown",
                 location: item.locationName || "Hồ Chí Minh",
                 time: "Hôm nay",
+                description: item.jobDescription || item.skills?.join(', ') || "",
                 source: "VietnamWorks"
             })).filter(job => job.title && job.link);
         }
@@ -54,12 +55,14 @@ async function scrape(browser) {
                 const locationNode = el.querySelector('[class*="address"], [class*="location"]');
                 const timeNode = el.querySelector('[class*="time"], [class*="updated"]');
                 
+                const descNode = el.querySelector('.job-snippet, .requirements, p, [class*="skill"]');
                 return {
                     title: titleNode?.innerText.trim() || el.innerText.split('\n')[0].trim(),
                     link: el.href || linkNode?.href || "",
                     company: companyNode?.innerText.trim() || "Unknown",
                     location: locationNode?.innerText.trim() || "Hồ Chí Minh",
                     time: timeNode?.innerText.trim() || "Hôm nay",
+                    description: descNode?.innerText.trim() || "",
                     source: "VietnamWorks"
                 };
             }).filter(item => item.title && item.link);

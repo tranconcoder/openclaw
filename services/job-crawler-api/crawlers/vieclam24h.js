@@ -26,6 +26,7 @@ async function scrape(browser) {
                 const locationNode = el.querySelector('[class*="address"], [class*="location"]');
                 const timeNode = el.querySelector('[class*="time"], [class*="updated"]');
                 
+                const descNode = el.querySelector('[class*="skill"], [class*="tag"], [class*="snippet"], p');
                 const linkHref = el.href || (el.closest('a') ? el.closest('a').href : null) || linkNode?.href || "";
                 return {
                     title: titleNode?.innerText.trim() || el.innerText.split('\n')[0].trim(),
@@ -33,6 +34,7 @@ async function scrape(browser) {
                     company: companyNode?.innerText.trim() || "Unknown",
                     location: locationNode?.innerText.trim() || "Hồ Chí Minh",
                     time: timeNode?.innerText.trim() || "Hôm nay",
+                    description: descNode?.innerText.trim() || "",
                     source: "Vieclam24h"
                 };
             }).filter(item => item.title && item.link);
