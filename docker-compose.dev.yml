@@ -1,4 +1,50 @@
 services:
+  openclaw:
+    image: alpine/openclaw:main
+    container_name: openclaw_gateway_dev
+    user: "1000:1000"
+    restart: unless-stopped
+    ports:
+      - "18789:18789"
+    volumes:
+      - ./openclaw:/home/node/.openclaw
+      - ./openclaw-gog-config:/home/node/.config/gogcli
+      - ./google-oauth-secret.json:/home/node/.openclaw/google-oauth-secret.json
+    command: 
+      - "sh"
+      - "-c"
+      - |
+        mkdir -p /home/node/.local/bin
+        if [ ! -f /home/node/.local/bin/gog ]; then
+          echo "--- Installing gog CLI ---"
+          wget -qO- https://github.com/steipete/gogcli/releases/download/v0.11.0/gogcli_0.11.0_linux_amd64.tar.gz | tar -xzv -C /home/node/.local/bin gog
+          chmod +x /home/node/.local/bin/gog
+        fi
+        if [ -f /home/node/.openclaw/google-oauth-secret.json ]; then
+          echo "--- Configuring gog credentials ---"
+          gog auth credentials /home/node/.openclaw/google-oauth-secret.json
+        fi
+        if [ ! -d skills/blogwatcher ]; then
+          echo "--- Installing blogwatcher ---"
+          env HOME=/tmp npx --yes clawhub install blogwatcher || true
+        fi
+        mkdir -p /app/skills
+        ln -sf /home/node/.openclaw/skills/it-jobs /app/skills/it-jobs
+        ln -sf /home/node/.openclaw/skills/it-news /app/skills/it-news
+        openclaw gateway
+    environment:
+      - PATH=/home/node/.local/bin:/root/.bun/bin:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+      - GOG_ACCOUNT=${GOG_ACCOUNT}
+      - GOG_KEYRING_BACKEND=file
+      - GOG_KEYRING_PASSWORD=${GOG_KEYRING_PASSWORD:-openclaw}
+    env_file:
+      - .env.development
+    networks:
+      - openclaw-dev-net
+    depends_on:
+      - mongodb
+      - job-crawler-api
+
   browserless:
     image: browserless/chrome:latest
     container_name: openclaw_browserless_dev
