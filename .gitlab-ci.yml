@@ -21,12 +21,6 @@ deploy:
     - echo "--- Syncing files from CI workspace to server ---"
     - rsync -av --delete
       --exclude '.git'
-      --exclude 'openclaw/agents/'
-      --exclude 'openclaw/canvas/'
-      --exclude 'openclaw/credentials/'
-      --exclude 'openclaw/cron/'
-      --exclude 'openclaw/devices/paired.json'
-      --exclude 'openclaw-gog-config/'
       ./ $DEPLOY_FOLDER/
     - cd $DEPLOY_FOLDER
     - echo "--- Creating .env file from GitLab CI variable ---"
