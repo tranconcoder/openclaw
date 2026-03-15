@@ -103,7 +103,7 @@
     },
     "auth": {
       "mode": "token",
-      "token": "sk-1d0d5e8886af41cbabc7df65b3827f46"
+      "token": "${OPENCLAW_GATEWAY_TOKEN}"
     },
     "trustedProxies": [
       "127.0.0.1"
