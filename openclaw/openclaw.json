@@ -26,6 +26,23 @@
         "api": "openai-completions",
         "models": [
           {
+            "id": "gpt-oss-120b",
+            "name": "GPT-OSS 120B (FPT Cloud)",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 131072,
+            "maxTokens": 131072
+          },
+          {
             "id": "DeepSeek-V3.2-Speciale",
             "name": "DeepSeek V3.2 Speciale (FPT Cloud)",
             "api": "openai-completions",
@@ -73,10 +90,13 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "deepseek-fpt",
+        "primary": "gpt-oss-fpt",
         "fallbacks": []
       },
       "models": {
+        "fptcloud/gpt-oss-120b": {
+          "alias": "gpt-oss-fpt"
+        },
         "fptcloud/DeepSeek-V3.2-Speciale": {
           "alias": "deepseek-fpt"
         },
