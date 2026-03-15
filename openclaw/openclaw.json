@@ -26,6 +26,24 @@
         "api": "openai-completions",
         "models": [
           {
+            "id": "Kimi-K2.5",
+            "name": "Kimi K2.5 (FPT Cloud)",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": [
+              "text",
+              "image"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 256000,
+            "maxTokens": 16384
+          },
+          {
             "id": "gpt-oss-120b",
             "name": "GPT-OSS 120B (FPT Cloud)",
             "api": "openai-completions",
@@ -90,10 +108,13 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "gpt-oss-fpt",
+        "primary": "kimi-fpt",
         "fallbacks": []
       },
       "models": {
+        "fptcloud/Kimi-K2.5": {
+          "alias": "kimi-fpt"
+        },
         "fptcloud/gpt-oss-120b": {
           "alias": "gpt-oss-fpt"
         },
