@@ -11,6 +11,10 @@
   },
   "auth": {
     "profiles": {
+      "fptcloud:default": {
+        "provider": "fptcloud",
+        "mode": "api_key"
+      },
       "google:default": {
         "provider": "google",
         "mode": "api_key"
@@ -25,6 +29,23 @@
         "apiKey": "${FPTCLOUD_API_KEY}",
         "api": "openai-completions",
         "models": [
+          {
+            "id": "SaoLa4-medium",
+            "name": "SaoLa4 Medium (FPT Cloud)",
+            "api": "openai-completions",
+            "reasoning": false,
+            "input": [
+              "text"
+            ],
+            "cost": {
+              "input": 0,
+              "output": 0,
+              "cacheRead": 0,
+              "cacheWrite": 0
+            },
+            "contextWindow": 32768,
+            "maxTokens": 32768
+          },
           {
             "id": "Kimi-K2.5",
             "name": "Kimi K2.5 (FPT Cloud)",
@@ -108,10 +129,13 @@
   "agents": {
     "defaults": {
       "model": {
-        "primary": "kimi-fpt",
+        "primary": "saola4-fpt",
         "fallbacks": []
       },
       "models": {
+        "fptcloud/SaoLa4-medium": {
+          "alias": "saola4-fpt"
+        },
         "fptcloud/Kimi-K2.5": {
           "alias": "kimi-fpt"
         },
