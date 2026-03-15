@@ -14,10 +14,6 @@
       "fptcloud:default": {
         "provider": "fptcloud",
         "mode": "api_key"
-      },
-      "google:default": {
-        "provider": "google",
-        "mode": "api_key"
       }
     }
   },
