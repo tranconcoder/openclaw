@@ -81,3 +81,7 @@ volumes:
 networks:
   openclaw-net:
     driver: bridge
+    ipam:
+      config:
+        - subnet: 172.22.0.0/16     # Cố định dải subnet
+          gateway: 172.22.0.1    # Cố định IP Gateway này
